@@ -1,0 +1,3 @@
+[submodule "grpc-chat-kotlin"]
+	path = grpc-chat-kotlin
+	url = https://github.com/Jacksgong/grpc-chat-kotlin.git
