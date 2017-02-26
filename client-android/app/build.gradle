@@ -18,14 +18,23 @@ android {
         }
     }
     sourceSets {
-        main.java.srcDirs += 'src/main/kotlin'
+        main {
+            java.srcDirs = ['src/main/kotlin',
+                             '../../grpc-chat-kotlin/protocol/build/generated/source/proto/main/java',
+                             '../../grpc-chat-kotlin/protocol/build/generated/source/proto/main/grpc'
+            ]
+        }
     }
 }
 
 dependencies {
-    compile 'com.android.support:appcompat-v7:25.1.1'
-    compile 'com.android.support:design:25.1.1'
+    compile 'com.android.support:appcompat-v7:25.2.0'
+    compile 'com.android.support:design:25.2.0'
     compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+
+    compile 'io.grpc:grpc-okhttp:1.1.2'
+    compile 'io.grpc:grpc-protobuf-lite:1.1.2'
+    compile 'io.grpc:grpc-stub:1.1.2'
 }
 repositories {
     mavenCentral()
