@@ -20,8 +20,11 @@ android {
     }
     sourceSets {
         main {
-            java.srcDirs 'src/main/kotlin'
-            proto.srcDirs '../../grpc-chat-kotlin/protocol/src/main/proto'
+            java.srcDirs  'src/main/kotlin'
+
+            proto {
+                srcDir '../../grpc-chat-kotlin/protocol/src/main/proto'
+            }
         }
     }
 }
