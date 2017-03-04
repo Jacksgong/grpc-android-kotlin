@@ -33,20 +33,20 @@ class LoginActivity : AppCompatActivity(), LoaderCallbacks<Cursor> {
     private var mAuthTask: UserLoginTask? = null
 
     // UI references.
-    private var mEmailView: AutoCompleteTextView? = null
-    private var mPasswordView: EditText? = null
-    private var mProgressView: View? = null
-    private var mLoginFormView: View? = null
+    private lateinit var mUserNameView: AutoCompleteTextView
+    private lateinit var mPasswordView: EditText
+    private lateinit var mProgressView: View
+    private lateinit var mLoginFormView: View
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
         // Set up the login form.
-        mEmailView = findViewById(R.id.email) as AutoCompleteTextView
+        mUserNameView = findViewById(R.id.username) as AutoCompleteTextView
         populateAutoComplete()
 
         mPasswordView = findViewById(R.id.password) as EditText
-        mPasswordView!!.setOnEditorActionListener(TextView.OnEditorActionListener { textView, id, keyEvent ->
+        mPasswordView.setOnEditorActionListener(TextView.OnEditorActionListener { textView, id, keyEvent ->
             if (id == R.id.login || id == EditorInfo.IME_NULL) {
                 attemptLogin()
                 return@OnEditorActionListener true
@@ -77,7 +77,7 @@ class LoginActivity : AppCompatActivity(), LoaderCallbacks<Cursor> {
             return true
         }
         if (shouldShowRequestPermissionRationale(READ_CONTACTS)) {
-            Snackbar.make(mEmailView!!, R.string.permission_rationale, Snackbar.LENGTH_INDEFINITE)
+            Snackbar.make(mUserNameView, R.string.permission_rationale, Snackbar.LENGTH_INDEFINITE)
                     .setAction(android.R.string.ok) { requestPermissions(arrayOf(READ_CONTACTS), REQUEST_READ_CONTACTS) }
         } else {
             requestPermissions(arrayOf(READ_CONTACTS), REQUEST_READ_CONTACTS)
@@ -109,31 +109,31 @@ class LoginActivity : AppCompatActivity(), LoaderCallbacks<Cursor> {
         }
 
         // Reset errors.
-        mEmailView!!.error = null
-        mPasswordView!!.error = null
+        mUserNameView.error = null
+        mPasswordView.error = null
 
         // Store values at the time of the login attempt.
-        val email = mEmailView!!.text.toString()
-        val password = mPasswordView!!.text.toString()
+        val email = mUserNameView.text.toString()
+        val password = mPasswordView.text.toString()
 
         var cancel = false
         var focusView: View? = null
 
         // Check for a valid password, if the user entered one.
         if (!TextUtils.isEmpty(password) && !isPasswordValid(password)) {
-            mPasswordView!!.error = getString(R.string.error_invalid_password)
+            mPasswordView.error = getString(R.string.error_invalid_password)
             focusView = mPasswordView
             cancel = true
         }
 
         // Check for a valid email address.
         if (TextUtils.isEmpty(email)) {
-            mEmailView!!.error = getString(R.string.error_field_required)
-            focusView = mEmailView
+            mUserNameView.error = getString(R.string.error_field_required)
+            focusView = mUserNameView
             cancel = true
         } else if (!isEmailValid(email)) {
-            mEmailView!!.error = getString(R.string.error_invalid_email)
-            focusView = mEmailView
+            mUserNameView.error = getString(R.string.error_invalid_email)
+            focusView = mUserNameView
             cancel = true
         }
 
@@ -169,26 +169,26 @@ class LoginActivity : AppCompatActivity(), LoaderCallbacks<Cursor> {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
             val shortAnimTime = resources.getInteger(android.R.integer.config_shortAnimTime)
 
-            mLoginFormView!!.visibility = if (show) View.GONE else View.VISIBLE
-            mLoginFormView!!.animate().setDuration(shortAnimTime.toLong()).alpha(
+            mLoginFormView.visibility = if (show) View.GONE else View.VISIBLE
+            mLoginFormView.animate().setDuration(shortAnimTime.toLong()).alpha(
                     (if (show) 0 else 1).toFloat()).setListener(object : AnimatorListenerAdapter() {
                 override fun onAnimationEnd(animation: Animator) {
-                    mLoginFormView!!.visibility = if (show) View.GONE else View.VISIBLE
+                    mLoginFormView.visibility = if (show) View.GONE else View.VISIBLE
                 }
             })
 
-            mProgressView!!.visibility = if (show) View.VISIBLE else View.GONE
-            mProgressView!!.animate().setDuration(shortAnimTime.toLong()).alpha(
+            mProgressView.visibility = if (show) View.VISIBLE else View.GONE
+            mProgressView.animate().setDuration(shortAnimTime.toLong()).alpha(
                     (if (show) 1 else 0).toFloat()).setListener(object : AnimatorListenerAdapter() {
                 override fun onAnimationEnd(animation: Animator) {
-                    mProgressView!!.visibility = if (show) View.VISIBLE else View.GONE
+                    mProgressView.visibility = if (show) View.VISIBLE else View.GONE
                 }
             })
         } else {
             // The ViewPropertyAnimator APIs are not available, so simply show
             // and hide the relevant UI components.
-            mProgressView!!.visibility = if (show) View.VISIBLE else View.GONE
-            mLoginFormView!!.visibility = if (show) View.GONE else View.VISIBLE
+            mProgressView.visibility = if (show) View.VISIBLE else View.GONE
+            mLoginFormView.visibility = if (show) View.GONE else View.VISIBLE
         }
     }
 
@@ -227,7 +227,7 @@ class LoginActivity : AppCompatActivity(), LoaderCallbacks<Cursor> {
         val adapter = ArrayAdapter(this@LoginActivity,
                 android.R.layout.simple_dropdown_item_1line, emailAddressCollection)
 
-        mEmailView!!.setAdapter(adapter)
+        mUserNameView.setAdapter(adapter)
     }
 
 
@@ -258,7 +258,7 @@ class LoginActivity : AppCompatActivity(), LoaderCallbacks<Cursor> {
 
             // TODO: register the new account here.
             return DUMMY_CREDENTIALS
-                    .map { credential -> credential.split(":".toRegex()).dropLastWhile({ it.isEmpty() }).toTypedArray() }
+                    .map { credential -> credential.split(":".toRegex()).dropLastWhile(String::isEmpty).toTypedArray() }
                     .firstOrNull { it[0] == mEmail }
                     ?.let { // Account exists, return true if the password matches.
                         it[1] == mPassword
@@ -273,8 +273,8 @@ class LoginActivity : AppCompatActivity(), LoaderCallbacks<Cursor> {
             if (success!!) {
                 finish()
             } else {
-                mPasswordView!!.error = getString(R.string.error_incorrect_password)
-                mPasswordView!!.requestFocus()
+                mPasswordView.error = getString(R.string.error_incorrect_password)
+                mPasswordView.requestFocus()
             }
         }
 
