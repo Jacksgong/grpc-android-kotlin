@@ -6,7 +6,7 @@ import android.support.v7.app.AppCompatActivity
 import android.view.View
 import android.widget.EditText
 import cn.dreamtobe.grpc.client.R
-import cn.dreamtobe.grpc.client.logic.Cache
+import cn.dreamtobe.grpc.client.logic.ServerApi
 
 /**
  * Created by Jacksgong on 07/03/2017.
@@ -24,13 +24,13 @@ class InitialActivity : AppCompatActivity() {
         hostEdt = findViewById(R.id.host_edt) as EditText
         portEdt = findViewById(R.id.port_edt) as EditText
 
-        hostEdt.setText(Cache.host)
-        portEdt.setText(Cache.port.toString())
+        hostEdt.setText(ServerApi.host)
+        portEdt.setText(ServerApi.port.toString())
     }
 
     fun onClickConfirm(view: View) {
-        Cache.host = hostEdt.text.toString()
-        Cache.port = portEdt.text.toString().toInt()
+        ServerApi.host = hostEdt.text.toString()
+        ServerApi.port = portEdt.text.toString().toInt()
 
         startActivity(Intent(this, LoginActivity::class.java))
     }

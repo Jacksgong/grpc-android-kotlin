@@ -7,14 +7,17 @@ import io.grpc.ManagedChannelBuilder
 
 class TokenMissingException : Exception("Token is missing. Call login() first")
 
-object UserService {
+object ServerApi {
+
+    var port: Int = 5001
+    var host: String = "10.15.128.171"
 
     private val logger = Logger(javaClass)
     private val connector: ChatGrpc.ChatBlockingStub
     private var token: String? = null
 
     init {
-        val channel = ManagedChannelBuilder.forAddress(Cache.host, Cache.port)
+        val channel = ManagedChannelBuilder.forAddress(host, port)
                 .usePlaintext(true)
                 .build()
         connector = ChatGrpc.newBlockingStub(channel)

@@ -21,7 +21,7 @@ import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.widget.*
 import cn.dreamtobe.grpc.client.R
-import cn.dreamtobe.grpc.client.logic.UserService
+import cn.dreamtobe.grpc.client.logic.ServerApi
 import rx.Observable
 import rx.schedulers.Schedulers
 
@@ -73,7 +73,7 @@ class LoginActivity : AppCompatActivity(), LoaderCallbacks<Cursor> {
     private fun mock() {
         Observable.create(Observable.OnSubscribe<Boolean> { subscriber ->
             try {
-                UserService.register(USERNAME, PASSWORD)
+                ServerApi.register(USERNAME, PASSWORD)
             } catch (ex: Throwable) {
                 subscriber.onError(ex)
             }
@@ -282,7 +282,7 @@ class LoginActivity : AppCompatActivity(), LoaderCallbacks<Cursor> {
     inner class UserLoginTask internal constructor(private val mEmail: String, private val mPassword: String) : AsyncTask<Void, Void, Boolean>() {
 
         override fun doInBackground(vararg params: Void): Boolean? {
-            return UserService.login(mEmail, mPassword)
+            return ServerApi.login(mEmail, mPassword)
         }
 
         override fun onPostExecute(success: Boolean?) {
