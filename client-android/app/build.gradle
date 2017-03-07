@@ -1,6 +1,6 @@
 apply plugin: 'com.android.application'
-apply plugin: 'kotlin-android'
 apply plugin: 'com.google.protobuf'
+apply plugin: 'kotlin-android'
 
 android {
     compileSdkVersion 25
@@ -20,7 +20,7 @@ android {
     }
     sourceSets {
         main {
-            java.srcDirs  'src/main/kotlin'
+            java.srcDirs 'src/main/kotlin'
 
             proto {
                 srcDir '../../grpc-chat-kotlin/protocol/src/main/proto'
@@ -55,11 +55,13 @@ protobuf {
 }
 
 dependencies {
-    compile 'com.android.support:appcompat-v7:25.2.0'
-    compile 'com.android.support:design:25.2.0'
     compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
 
+    compile 'com.android.support:appcompat-v7:25.2.0'
+    compile 'com.android.support:design:25.2.0'
     compile 'io.grpc:grpc-okhttp:1.1.2'
     compile 'io.grpc:grpc-protobuf-lite:1.1.2'
     compile 'io.grpc:grpc-stub:1.1.2'
+    compile 'javax.annotation:javax.annotation-api:1.2'
+    compile 'com.android.support.constraint:constraint-layout:1.0.0-beta4'
 }
