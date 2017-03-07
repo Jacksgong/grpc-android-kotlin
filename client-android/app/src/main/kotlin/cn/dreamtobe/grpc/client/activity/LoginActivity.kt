@@ -21,7 +21,9 @@ import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.widget.*
 import cn.dreamtobe.grpc.client.R
-import java.util.*
+import cn.dreamtobe.grpc.client.logic.UserService
+import rx.Observable
+import rx.schedulers.Schedulers
 
 /**
  * A login screen that offers login via email/password.
@@ -38,15 +40,20 @@ class LoginActivity : AppCompatActivity(), LoaderCallbacks<Cursor> {
     private lateinit var mProgressView: View
     private lateinit var mLoginFormView: View
 
+    val USERNAME = "jacks@dreamtobe.cn"
+    val PASSWORD = "dreamtobe"
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
         // Set up the login form.
         mUserNameView = findViewById(R.id.username) as AutoCompleteTextView
+        mUserNameView.setText(USERNAME)
         populateAutoComplete()
 
         mPasswordView = findViewById(R.id.password) as EditText
-        mPasswordView.setOnEditorActionListener(TextView.OnEditorActionListener { textView, id, keyEvent ->
+        mPasswordView.setText(PASSWORD)
+        mPasswordView.setOnEditorActionListener(TextView.OnEditorActionListener { _, id, _ ->
             if (id == R.id.login || id == EditorInfo.IME_NULL) {
                 attemptLogin()
                 return@OnEditorActionListener true
@@ -59,6 +66,21 @@ class LoginActivity : AppCompatActivity(), LoaderCallbacks<Cursor> {
 
         mLoginFormView = findViewById(R.id.login_form)
         mProgressView = findViewById(R.id.login_progress)
+
+        mock()
+    }
+
+    private fun mock() {
+        Observable.create(Observable.OnSubscribe<Boolean> { subscriber ->
+            try {
+                UserService.register(USERNAME, PASSWORD)
+            } catch (ex: Throwable) {
+                subscriber.onError(ex)
+            }
+
+            subscriber.onNext(false)
+            subscriber.onCompleted()
+        }).observeOn(Schedulers.io()).subscribe({ }, { })
     }
 
     private fun populateAutoComplete() {
@@ -147,6 +169,19 @@ class LoginActivity : AppCompatActivity(), LoaderCallbacks<Cursor> {
             showProgress(true)
             mAuthTask = UserLoginTask(email, password)
             mAuthTask!!.execute()
+//            Observable.create(Observable.OnSubscribe<Boolean> { subscriber ->
+//                // try to login
+//                try {
+//
+//                } catch (ex: Throwable) {
+//                    subscriber.onError(ex)
+//                }
+//
+//                subscriber.onNext(false)
+//                subscriber.onCompleted()
+//            }).observeOn(AndroidSchedulers.mainThread()).subscribe {
+//                ProgressSubscriber<Boolean>(this)
+//            }
         }
     }
 
@@ -247,23 +282,7 @@ class LoginActivity : AppCompatActivity(), LoaderCallbacks<Cursor> {
     inner class UserLoginTask internal constructor(private val mEmail: String, private val mPassword: String) : AsyncTask<Void, Void, Boolean>() {
 
         override fun doInBackground(vararg params: Void): Boolean? {
-            // TODO: attempt authentication against a network service.
-
-            try {
-                // Simulate network access.
-                Thread.sleep(2000)
-            } catch (e: InterruptedException) {
-                return false
-            }
-
-            // TODO: register the new account here.
-            return DUMMY_CREDENTIALS
-                    .map { credential -> credential.split(":".toRegex()).dropLastWhile(String::isEmpty).toTypedArray() }
-                    .firstOrNull { it[0] == mEmail }
-                    ?.let { // Account exists, return true if the password matches.
-                        it[1] == mPassword
-                    }
-                    ?: true
+            return UserService.login(mEmail, mPassword)
         }
 
         override fun onPostExecute(success: Boolean?) {

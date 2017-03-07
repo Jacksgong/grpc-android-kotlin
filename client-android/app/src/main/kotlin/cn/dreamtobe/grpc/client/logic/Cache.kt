@@ -5,5 +5,6 @@ package cn.dreamtobe.grpc.client.logic
  */
 object Cache {
     var port: Int = 5001
-    var host: String = "localhost"
+    var host: String = "10.15.128.171"
+    var loginedUser: String? = null
 }

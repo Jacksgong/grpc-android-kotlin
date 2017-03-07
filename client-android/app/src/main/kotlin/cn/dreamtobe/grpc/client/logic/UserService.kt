@@ -3,35 +3,24 @@ package cn.dreamtobe.grpc.client.logic
 import de.mkammerer.grpcchat.protocol.*
 import io.grpc.ManagedChannelBuilder
 
-const val USERNAME = "jacks"
-const val PASSWORD = "dreamtobe"
 
-fun main(args: Array<String>) {
-    Client(USERNAME, PASSWORD).start()
-}
 
 class TokenMissingException : Exception("Token is missing. Call login() first")
 
-class Client(private val username: String, private val password: String) {
+object UserService {
+
     private val logger = Logger(javaClass)
     private val connector: ChatGrpc.ChatBlockingStub
     private var token: String? = null
 
     init {
-        val channel = ManagedChannelBuilder.forAddress("localhost", 5001)
+        val channel = ManagedChannelBuilder.forAddress(Cache.host, Cache.port)
                 .usePlaintext(true)
                 .build()
         connector = ChatGrpc.newBlockingStub(channel)
     }
 
-    fun start() {
-        register()
-        login()
-        createRoom()
-        listRooms()
-    }
-
-    private fun createRoom() {
+    fun createRoom() {
         if (token == null) throw TokenMissingException()
 
         val request = CreateRoomRequest.newBuilder().setToken(token).setName("Room #1").build()
@@ -44,7 +33,7 @@ class Client(private val username: String, private val password: String) {
         }
     }
 
-    private fun register() {
+    fun register(username: String, password: String) {
         val request = RegisterRequest.newBuilder().setUsername(username).setPassword(password).build()
         val response = connector.register(request)
 
@@ -55,19 +44,21 @@ class Client(private val username: String, private val password: String) {
         }
     }
 
-    private fun login() {
+    fun login(username: String, password: String) : Boolean{
         val request = LoginRequest.newBuilder().setUsername(username).setPassword(password).build()
         val response = connector.login(request)
 
         if (response.loggedIn) {
             token = response.token
             logger.info("Login successful, token is $token")
+            return true
         } else {
             logger.info("Login failed, error: ${response.error}")
+            return false
         }
     }
 
-    private fun listRooms() {
+    fun listRooms() {
         if (token == null) throw TokenMissingException()
 
         val request = ListRoomsRequest.newBuilder().setToken(token).build()

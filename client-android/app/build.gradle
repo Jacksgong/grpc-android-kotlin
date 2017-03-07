@@ -64,4 +64,6 @@ dependencies {
     compile 'io.grpc:grpc-stub:1.1.2'
     compile 'javax.annotation:javax.annotation-api:1.2'
     compile 'com.android.support.constraint:constraint-layout:1.0.0-beta4'
+
+    compile 'io.reactivex:rxkotlin:1.0.0-RC2'
 }
