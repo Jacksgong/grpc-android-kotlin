@@ -18,7 +18,7 @@ class InitialActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        title = "Initial Page"
+        title = "Initial"
         setContentView(R.layout.activity_initial)
 
         hostEdt = findViewById(R.id.host_edt) as EditText

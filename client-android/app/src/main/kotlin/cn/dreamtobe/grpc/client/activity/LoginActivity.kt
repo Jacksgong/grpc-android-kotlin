@@ -10,7 +10,6 @@ import android.content.Loader
 import android.content.pm.PackageManager
 import android.database.Cursor
 import android.net.Uri
-import android.os.AsyncTask
 import android.os.Build
 import android.os.Bundle
 import android.provider.ContactsContract
@@ -22,6 +21,8 @@ import android.view.inputmethod.EditorInfo
 import android.widget.*
 import cn.dreamtobe.grpc.client.R
 import cn.dreamtobe.grpc.client.logic.ServerApi
+import cn.dreamtobe.grpc.client.tools.AndroidSchedulers
+import de.mkammerer.grpcchat.protocol.LoginOrRegisterResponse
 import rx.Observable
 import rx.schedulers.Schedulers
 
@@ -29,10 +30,6 @@ import rx.schedulers.Schedulers
  * A login screen that offers login via email/password.
  */
 class LoginActivity : AppCompatActivity(), LoaderCallbacks<Cursor> {
-    /**
-     * Keep track of the login task to ensure we can cancel it if requested.
-     */
-    private var mAuthTask: UserLoginTask? = null
 
     // UI references.
     private lateinit var mUserNameView: AutoCompleteTextView
@@ -45,6 +42,7 @@ class LoginActivity : AppCompatActivity(), LoaderCallbacks<Cursor> {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        title = "Login"
         setContentView(R.layout.activity_login)
         // Set up the login form.
         mUserNameView = findViewById(R.id.username) as AutoCompleteTextView
@@ -55,33 +53,19 @@ class LoginActivity : AppCompatActivity(), LoaderCallbacks<Cursor> {
         mPasswordView.setText(PASSWORD)
         mPasswordView.setOnEditorActionListener(TextView.OnEditorActionListener { _, id, _ ->
             if (id == R.id.login || id == EditorInfo.IME_NULL) {
-                attemptLogin()
+                attemptLoginOrRegister()
                 return@OnEditorActionListener true
             }
             false
         })
 
-        val mEmailSignInButton = findViewById(R.id.email_sign_in_button) as Button
-        mEmailSignInButton.setOnClickListener { attemptLogin() }
+        val signInOrRegisterBtn = findViewById(R.id.sign_in_or_register_btn) as Button
+        signInOrRegisterBtn.setOnClickListener { attemptLoginOrRegister() }
 
         mLoginFormView = findViewById(R.id.login_form)
         mProgressView = findViewById(R.id.login_progress)
-
-        mock()
     }
 
-    private fun mock() {
-        Observable.create(Observable.OnSubscribe<Boolean> { subscriber ->
-            try {
-                ServerApi.register(USERNAME, PASSWORD)
-            } catch (ex: Throwable) {
-                subscriber.onError(ex)
-            }
-
-            subscriber.onNext(false)
-            subscriber.onCompleted()
-        }).observeOn(Schedulers.io()).subscribe({ }, { })
-    }
 
     private fun populateAutoComplete() {
         if (!mayRequestContacts()) {
@@ -119,17 +103,7 @@ class LoginActivity : AppCompatActivity(), LoaderCallbacks<Cursor> {
         }
     }
 
-
-    /**
-     * Attempts to sign in or register the account specified by the login form.
-     * If there are form errors (invalid email, missing fields, etc.), the
-     * errors are presented and no actual login attempt is made.
-     */
-    private fun attemptLogin() {
-        if (mAuthTask != null) {
-            return
-        }
-
+    private fun attemptLoginOrRegister() {
         // Reset errors.
         mUserNameView.error = null
         mPasswordView.error = null
@@ -167,21 +141,27 @@ class LoginActivity : AppCompatActivity(), LoaderCallbacks<Cursor> {
             // Show a progress spinner, and kick off a background task to
             // perform the user login attempt.
             showProgress(true)
-            mAuthTask = UserLoginTask(email, password)
-            mAuthTask!!.execute()
-//            Observable.create(Observable.OnSubscribe<Boolean> { subscriber ->
-//                // try to login
-//                try {
-//
-//                } catch (ex: Throwable) {
-//                    subscriber.onError(ex)
-//                }
-//
-//                subscriber.onNext(false)
-//                subscriber.onCompleted()
-//            }).observeOn(AndroidSchedulers.mainThread()).subscribe {
-//                ProgressSubscriber<Boolean>(this)
-//            }
+            Observable.create(Observable.OnSubscribe<LoginOrRegisterResponse> { subscriber ->
+                try {
+                    subscriber.onNext(ServerApi.loginOrRegister(USERNAME, PASSWORD))
+                    subscriber.onCompleted()
+                } catch (ex: Throwable) {
+                    subscriber.onError(ex)
+                }
+
+            }).subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(
+                            { response ->
+                                showProgress(false)
+                                Snackbar.make(mLoginFormView, "finish login: ${response.loggedIn} & performed register: ${response.performedRegister}", Snackbar.LENGTH_LONG).show()
+                            },
+
+                            { e ->
+                                showProgress(false)
+                                Snackbar.make(mLoginFormView, "login failed: $e", Snackbar.LENGTH_LONG).show()
+                            }
+                    )
         }
     }
 
@@ -272,34 +252,6 @@ class LoginActivity : AppCompatActivity(), LoaderCallbacks<Cursor> {
 
             val ADDRESS = 0
             val IS_PRIMARY = 1
-        }
-    }
-
-    /**
-     * Represents an asynchronous login/registration task used to authenticate
-     * the user.
-     */
-    inner class UserLoginTask internal constructor(private val mEmail: String, private val mPassword: String) : AsyncTask<Void, Void, Boolean>() {
-
-        override fun doInBackground(vararg params: Void): Boolean? {
-            return ServerApi.login(mEmail, mPassword)
-        }
-
-        override fun onPostExecute(success: Boolean?) {
-            mAuthTask = null
-            showProgress(false)
-
-            if (success!!) {
-                finish()
-            } else {
-                mPasswordView.error = getString(R.string.error_incorrect_password)
-                mPasswordView.requestFocus()
-            }
-        }
-
-        override fun onCancelled() {
-            mAuthTask = null
-            showProgress(false)
         }
     }
 
