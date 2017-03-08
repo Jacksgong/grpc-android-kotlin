@@ -5,6 +5,9 @@ import android.support.design.widget.Snackbar
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
+import android.support.v7.widget.Toolbar
+import android.view.Menu
+import android.view.MenuItem
 import android.view.View
 import android.widget.Button
 import android.widget.ProgressBar
@@ -20,6 +23,7 @@ import de.mkammerer.grpcchat.protocol.RoomMessage
  */
 class ConversationActivity : AppCompatActivity(), ConversationMvpView {
 
+    lateinit var toolbar: Toolbar
 
     lateinit var presenter: ConversationPresenter
     lateinit var progressView: ProgressBar
@@ -27,14 +31,18 @@ class ConversationActivity : AppCompatActivity(), ConversationMvpView {
     lateinit var adapter: ConversationListAdapter
     lateinit var refreshBtn: Button
 
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        title = "Conversation"
         setContentView(R.layout.activity_conversation)
 
         presenter = ConversationPresenter()
         presenter.attachView(this)
+
+        toolbar = findViewById(R.id.toolbar) as Toolbar
+        setSupportActionBar(toolbar)
+        supportActionBar!!.title = "Conversation"
 
         progressView = findViewById(R.id.progressBar) as ProgressBar
         recyclerView = findViewById(R.id.recycler_view) as RecyclerView
@@ -86,6 +94,19 @@ class ConversationActivity : AppCompatActivity(), ConversationMvpView {
 
         Snackbar.make(recyclerView, "load ${roomMessageList.size} rooms from server",
                 Snackbar.LENGTH_LONG).show()
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
+        when (item!!.itemId) {
+            R.id.menu_refresh -> presenter.listRooms()
+            else -> return super.onOptionsItemSelected(item)
+        }
+        return true
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.menu_conversation, menu)
+        return super.onCreateOptionsMenu(menu)
     }
 
 }

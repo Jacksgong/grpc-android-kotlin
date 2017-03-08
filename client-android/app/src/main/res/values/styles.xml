@@ -9,4 +9,10 @@
         <item name="background">@color/light_background</item>
     </style>
 
+    <style name="AppTheme.NoActionBar">
+        <item name="windowNoTitle">true</item>
+        <item name="windowActionBar">false</item>
+    </style>
+
+
 </resources>
