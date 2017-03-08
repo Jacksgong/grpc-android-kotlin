@@ -6,6 +6,7 @@ import android.animation.AnimatorListenerAdapter
 import android.annotation.TargetApi
 import android.app.LoaderManager.LoaderCallbacks
 import android.content.CursorLoader
+import android.content.Intent
 import android.content.Loader
 import android.content.pm.PackageManager
 import android.database.Cursor
@@ -155,6 +156,10 @@ class LoginActivity : AppCompatActivity(), LoaderCallbacks<Cursor> {
                             { response ->
                                 showProgress(false)
                                 Snackbar.make(mLoginFormView, "finish login: ${response.loggedIn} & performed register: ${response.performedRegister}", Snackbar.LENGTH_LONG).show()
+                                if (response.loggedIn) {
+                                    startActivity(Intent(this, ConversationActivity::class.java))
+                                    finish()
+                                }
                             },
 
                             { e ->

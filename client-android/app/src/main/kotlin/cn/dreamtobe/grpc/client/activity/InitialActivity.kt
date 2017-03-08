@@ -33,5 +33,6 @@ class InitialActivity : AppCompatActivity() {
         ServerApi.port = portEdt.text.toString().toInt()
 
         startActivity(Intent(this, LoginActivity::class.java))
+        finish()
     }
 }

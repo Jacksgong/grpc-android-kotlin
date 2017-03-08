@@ -26,6 +26,7 @@
         </activity>
         <activity android:name=".activity.LoginActivity"/>
         <activity android:name=".activity.InitialActivity"/>
+        <activity android:name=".activity.ConversationActivity"/>
     </application>
 
 </manifest>

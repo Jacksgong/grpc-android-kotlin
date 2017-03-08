@@ -35,7 +35,7 @@ object ServerApi {
         }
     }
 
-    fun register(username: String, password: String) : Boolean {
+    fun register(username: String, password: String): Boolean {
         val request = RegisterRequest.newBuilder().setUsername(username).setPassword(password).build()
         val response = connector.register(request)
 
@@ -76,7 +76,7 @@ object ServerApi {
         return response.loggedIn
     }
 
-    fun listRooms() {
+    fun listRooms(): ListRoomsResponse {
         if (token == null) throw TokenMissingException()
 
         val request = ListRoomsRequest.newBuilder().setToken(token).build()
@@ -84,9 +84,11 @@ object ServerApi {
 
         if (response.error.code == Codes.SUCCESS) {
             Logger.log(javaClass, "Rooms on server:")
-            response.roomsList.forEach { it -> Logger.log(javaClass, it) }
+            response.roomsList.forEach { it -> Logger.log(javaClass, it.title) }
         } else {
             Logger.log(javaClass, "List rooms failed, error: ${response.error}")
         }
+
+        return response
     }
 }
