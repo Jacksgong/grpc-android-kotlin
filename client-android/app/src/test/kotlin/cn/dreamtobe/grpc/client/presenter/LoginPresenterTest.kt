@@ -57,7 +57,7 @@ class LoginPresenterTest : GrpcClientTest<LoginMvpView, LoginPresenter>() {
     @Test
     fun attemptLoginOrRegister_error_invokeShowError() {
         whenever(serverApi.loginOrRegister(Mockito.anyString(), Mockito.anyString()))
-                .thenReturn(correctLoginOrRegisterResponse)
+                .thenReturn(successLoginOrRegisterResponse)
         presenter.attemptLoginOrRegister(correctUserName, correctPassword)
         verify(mvpView).showLoading()
         verify(mvpView).loggedIn(true)
@@ -86,7 +86,7 @@ class LoginPresenterTest : GrpcClientTest<LoginMvpView, LoginPresenter>() {
         val correctUserName = "abc@iiii.com"
         val correctPassword = "12345"
 
-        val correctLoginOrRegisterResponse =
+        val successLoginOrRegisterResponse =
                 LoginOrRegisterResponse.newBuilder()
                         .setPerformedRegister(true)
                         .setToken("tempToken")
@@ -97,7 +97,9 @@ class LoginPresenterTest : GrpcClientTest<LoginMvpView, LoginPresenter>() {
         val mockError = mock<Error>()
         val errorLoginOrRegisterResponse =
                 LoginOrRegisterResponse.newBuilder()
+                        .setLoggedIn(false)
                         .setError(mockError)
+                        // we have to declare type cast, if not, it will raise Type mismatch
                         .build() as LoginOrRegisterResponse
     }
 
