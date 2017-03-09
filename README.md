@@ -2,6 +2,15 @@
 
 > Simple grpc Server/Android written in kotlin, protobuf generated java files
 
+## Initial project
+
+For fetch the back-end coding(grpc-chat-kotlin):
+
+```bash
+git submodule init
+git submodule update
+```
+
 ## LICENSE
 
 ```
