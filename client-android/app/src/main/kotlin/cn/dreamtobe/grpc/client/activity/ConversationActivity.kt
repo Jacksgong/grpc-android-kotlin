@@ -66,12 +66,12 @@ class ConversationActivity : AppCompatActivity(), ConversationMvpView {
         mPresenter.listRooms()
     }
 
-    override fun onStop() {
-        super.onStop()
+    override fun onDestroy() {
         mPresenter.detachView()
+        super.onDestroy()
     }
 
-    override fun loading() {
+    override fun showLoading() {
         mRecyclerView.visibility = View.GONE
         mProgressView.visibility = View.VISIBLE
         mRefreshBtn.visibility = View.GONE

@@ -7,14 +7,9 @@ import rx.Subscriber
 /**
  * Created by Jacksgong on 07/03/2017.
  */
-open class ProgressSubscriber<T> : Subscriber<T> {
+open class ProgressSubscriber<T>(context: Context) : Subscriber<T>() {
 
-    val mProgressDialog: ProgressDialog
-
-    constructor(context: Context) {
-        mProgressDialog = ProgressDialog(context)
-        mProgressDialog.setTitle("loading...")
-    }
+    val mProgressDialog = ProgressDialog(context)
 
     override fun onError(e: Throwable?) {
         mProgressDialog.dismiss()
@@ -30,5 +25,9 @@ open class ProgressSubscriber<T> : Subscriber<T> {
     }
 
     override fun onNext(t: T) {
+    }
+
+    init {
+        mProgressDialog.setTitle("loading...")
     }
 }

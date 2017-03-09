@@ -29,7 +29,7 @@ object ServerApi {
     }
 
 
-    fun createRoom(): Boolean {
+    fun createRoom(): CreateRoomResponse {
         if (mToken == null) throw TokenMissingException()
 
         val name = mDateFormat.format(Date())
@@ -42,7 +42,7 @@ object ServerApi {
             Logger.log(javaClass, "Room creation failed: $name, error: ${response.error}")
         }
 
-        return response.created
+        return response
     }
 
     fun register(username: String, password: String): Boolean {

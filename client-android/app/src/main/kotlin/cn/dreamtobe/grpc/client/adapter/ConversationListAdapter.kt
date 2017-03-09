@@ -13,29 +13,29 @@ import de.mkammerer.grpcchat.protocol.RoomMessage
  */
 class ConversationListAdapter : RecyclerView.Adapter<ConversationListAdapter.ConversationListViewHolder>() {
 
-    private var mConversationList = mutableListOf<RoomMessage>()
-    private var mCallback: Callback? = null
+    var conversationList = mutableListOf<RoomMessage>()
+    var callback: Callback? = null
 
     override fun onCreateViewHolder(parent: ViewGroup?, viewType: Int): ConversationListViewHolder {
         val itemView = LayoutInflater.from(parent!!.context)
                 .inflate(R.layout.item_conversation, parent, false)
         val viewHolder = ConversationListViewHolder(itemView)
         viewHolder.contentLayout.setOnClickListener {
-            mCallback?.onItemClick(viewHolder.roomMessage)
+            callback?.onItemClick(viewHolder.roomMessage)
         }
 
         return viewHolder
     }
 
     override fun onBindViewHolder(holder: ConversationListViewHolder, position: Int) {
-        val roomMessage = mConversationList[position]
+        val roomMessage = conversationList[position]
         holder.roomMessage = roomMessage
 
         holder.titleTv.text = roomMessage.title
         holder.descTv.text = roomMessage.desc
     }
 
-    override fun getItemCount() = mConversationList.size
+    override fun getItemCount() = conversationList.size
 
     class ConversationListViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val contentLayout = itemView.findViewById(R.id.content_layout)!!

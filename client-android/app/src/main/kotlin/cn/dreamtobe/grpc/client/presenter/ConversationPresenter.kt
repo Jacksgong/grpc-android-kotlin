@@ -6,6 +6,7 @@ import cn.dreamtobe.grpc.client.logic.ServerApi
 import cn.dreamtobe.grpc.client.tools.AndroidSchedulers
 import cn.dreamtobe.grpc.client.tools.ProgressSubscriber
 import cn.dreamtobe.grpc.client.view.ConversationMvpView
+import de.mkammerer.grpcchat.protocol.CreateRoomResponse
 import de.mkammerer.grpcchat.protocol.Error
 import de.mkammerer.grpcchat.protocol.ListRoomsResponse
 import rx.Observable
@@ -14,23 +15,23 @@ import rx.schedulers.Schedulers
 /**
  * Created by Jacksgong on 08/03/2017.
  */
-class ConversationPresenter(var context: Context?) : Presenter<ConversationMvpView> {
+class ConversationPresenter(private var mContext: Context?) : Presenter<ConversationMvpView> {
 
-    var mView: ConversationMvpView? = null
+    private var mView: ConversationMvpView? = null
 
     override fun attachView(view: ConversationMvpView) {
-        this.mView = view
+        mView = view
     }
 
     override fun detachView() {
-        this.mView = null
-        this.context = null
+        mView = null
+        mContext = null
     }
 
     fun createRoom() {
         this.mView ?: return
 
-        Observable.create(Observable.OnSubscribe<Boolean> { subscriber ->
+        Observable.create(Observable.OnSubscribe<CreateRoomResponse> { subscriber ->
             try {
                 subscriber.onNext(ServerApi.createRoom())
                 subscriber.onCompleted()
@@ -40,10 +41,14 @@ class ConversationPresenter(var context: Context?) : Presenter<ConversationMvpVi
 
         }).subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(object : ProgressSubscriber<Boolean>(context!!) {
-                    override fun onNext(t: Boolean) {
-                        super.onNext(t)
-                        mView?.createdNewRoom()
+                .subscribe(object : ProgressSubscriber<CreateRoomResponse>(mContext!!) {
+                    override fun onNext(response: CreateRoomResponse) {
+                        super.onNext(response)
+                        if (response.created) {
+                            mView?.createdNewRoom()
+                        } else {
+                            mView?.showError(response.error)
+                        }
                     }
 
                     override fun onError(e: Throwable?) {
@@ -56,7 +61,7 @@ class ConversationPresenter(var context: Context?) : Presenter<ConversationMvpVi
     fun listRooms() {
         this.mView ?: return
 
-        mView?.loading()
+        mView?.showLoading()
         Observable.create(Observable.OnSubscribe<ListRoomsResponse> { subscriber ->
             try {
                 subscriber.onNext(ServerApi.listRooms())
