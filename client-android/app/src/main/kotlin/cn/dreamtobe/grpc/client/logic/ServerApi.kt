@@ -12,29 +12,29 @@ object ServerApi {
 
     class TokenMissingException : Exception("Token is missing. Call login() first")
 
-    var port: Int = 5001
-    var host: String = "10.15.128.171"
+    var PORT: Int = 5001
+    var HOST: String = "10.15.128.171"
 
-    private val connector: ChatGrpc.ChatBlockingStub
-    private var token: String? = null
-    private val dateFormat: DateFormat
-    private var loggedInUser : String? = null
+    private val mConnector: ChatGrpc.ChatBlockingStub
+    private var mToken: String? = null
+    private val mDateFormat: DateFormat
+    private var mLoggedInUser: String? = null
 
     init {
-        val channel = ManagedChannelBuilder.forAddress(host, port)
+        val channel = ManagedChannelBuilder.forAddress(HOST, PORT)
                 .usePlaintext(true)
                 .build()
-        connector = ChatGrpc.newBlockingStub(channel)
-        dateFormat = SimpleDateFormat("MM-dd hh:mm:ss", Locale.CHINA)
+        mConnector = ChatGrpc.newBlockingStub(channel)
+        mDateFormat = SimpleDateFormat("MM-dd hh:mm:ss", Locale.CHINA)
     }
 
 
     fun createRoom(): Boolean {
-        if (token == null) throw TokenMissingException()
+        if (mToken == null) throw TokenMissingException()
 
-        val name = dateFormat.format(Date())
-        val request = CreateRoomRequest.newBuilder().setToken(token).setName(name).setDesc("create by $loggedInUser").build()
-        val response = connector.createRoom(request)
+        val name = mDateFormat.format(Date())
+        val request = CreateRoomRequest.newBuilder().setToken(mToken).setName(name).setDesc("create by $mLoggedInUser").build()
+        val response = mConnector.createRoom(request)
 
         if (response.created) {
             Logger.log(javaClass, "Room created: $name")
@@ -47,14 +47,14 @@ object ServerApi {
 
     fun register(username: String, password: String): Boolean {
         val request = RegisterRequest.newBuilder().setUsername(username).setPassword(password).build()
-        val response = connector.register(request)
+        val response = mConnector.register(request)
 
         if (response.registered) {
             Logger.log(javaClass, "Register successful")
-            loggedInUser = username
+            mLoggedInUser = username
         } else {
             Logger.log(javaClass, "Register failed, error: ${response.error}")
-            loggedInUser = null
+            mLoggedInUser = null
         }
 
         return response.registered
@@ -62,15 +62,15 @@ object ServerApi {
 
     fun loginOrRegister(username: String, password: String): LoginOrRegisterResponse {
         val request = LoginRequest.newBuilder().setUsername(username).setPassword(password).build()
-        val response = connector.loginOrRegister(request)
+        val response = mConnector.loginOrRegister(request)
 
         if (response.loggedIn) {
-            token = response.token
-            Logger.log(javaClass, "Login successful, token is $token")
-            loggedInUser = username
+            mToken = response.token
+            Logger.log(javaClass, "Login successful, token is $mToken")
+            mLoggedInUser = username
         } else {
             Logger.log(javaClass, "Login failed, error: ${response.error}")
-            loggedInUser = null
+            mLoggedInUser = null
         }
 
         return response
@@ -78,25 +78,25 @@ object ServerApi {
 
     fun login(username: String, password: String): Boolean {
         val request = LoginRequest.newBuilder().setUsername(username).setPassword(password).build()
-        val response = connector.login(request)
+        val response = mConnector.login(request)
 
         if (response.loggedIn) {
-            token = response.token
-            loggedInUser = username
-            Logger.log(javaClass, "Login successful, token is $token")
+            mToken = response.token
+            mLoggedInUser = username
+            Logger.log(javaClass, "Login successful, token is $mToken")
         } else {
             Logger.log(javaClass, "Login failed, error: ${response.error}")
-            loggedInUser = null
+            mLoggedInUser = null
         }
 
         return response.loggedIn
     }
 
     fun listRooms(): ListRoomsResponse {
-        if (token == null) throw TokenMissingException()
+        if (mToken == null) throw TokenMissingException()
 
-        val request = ListRoomsRequest.newBuilder().setToken(token).build()
-        val response = connector.listRooms(request)
+        val request = ListRoomsRequest.newBuilder().setToken(mToken).build()
+        val response = mConnector.listRooms(request)
 
         if (response.error.code == Codes.SUCCESS) {
             Logger.log(javaClass, "Rooms on server:")

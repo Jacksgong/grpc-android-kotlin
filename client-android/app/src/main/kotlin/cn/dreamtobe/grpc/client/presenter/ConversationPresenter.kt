@@ -16,19 +16,19 @@ import rx.schedulers.Schedulers
  */
 class ConversationPresenter(var context: Context?) : Presenter<ConversationMvpView> {
 
-    var view: ConversationMvpView? = null
+    var mView: ConversationMvpView? = null
 
     override fun attachView(view: ConversationMvpView) {
-        this.view = view
+        this.mView = view
     }
 
     override fun detachView() {
-        this.view = null
+        this.mView = null
         this.context = null
     }
 
     fun createRoom() {
-        this.view ?: return
+        this.mView ?: return
 
         Observable.create(Observable.OnSubscribe<Boolean> { subscriber ->
             try {
@@ -43,20 +43,20 @@ class ConversationPresenter(var context: Context?) : Presenter<ConversationMvpVi
                 .subscribe(object : ProgressSubscriber<Boolean>(context!!) {
                     override fun onNext(t: Boolean) {
                         super.onNext(t)
-                        view?.createdNewRoom()
+                        mView?.createdNewRoom()
                     }
 
                     override fun onError(e: Throwable?) {
                         super.onError(e)
-                        view?.showError(Error.newBuilder().setCode(400).setMessage(e.toString()).build())
+                        mView?.showError(Error.newBuilder().setCode(400).setMessage(e.toString()).build())
                     }
                 })
     }
 
     fun listRooms() {
-        this.view ?: return
+        this.mView ?: return
 
-        view?.loading()
+        mView?.loading()
         Observable.create(Observable.OnSubscribe<ListRoomsResponse> { subscriber ->
             try {
                 subscriber.onNext(ServerApi.listRooms())
@@ -70,14 +70,14 @@ class ConversationPresenter(var context: Context?) : Presenter<ConversationMvpVi
                 .subscribe(
                         { response ->
                             if (response.error.code == Codes.SUCCESS) {
-                                view?.showConversations(response.roomsList)
+                                mView?.showConversations(response.roomsList)
                             } else {
-                                view?.showError(response.error)
+                                mView?.showError(response.error)
                             }
                         },
 
                         { e ->
-                            view?.showError(Error.newBuilder().setCode(400).setMessage(e.toString()).build())
+                            mView?.showError(Error.newBuilder().setCode(400).setMessage(e.toString()).build())
                         }
                 )
     }

@@ -9,24 +9,24 @@ import rx.Subscriber
  */
 open class ProgressSubscriber<T> : Subscriber<T> {
 
-    val progressDialog: ProgressDialog
+    val mProgressDialog: ProgressDialog
 
     constructor(context: Context) {
-        progressDialog = ProgressDialog(context)
-        progressDialog.setTitle("loading...")
+        mProgressDialog = ProgressDialog(context)
+        mProgressDialog.setTitle("loading...")
     }
 
     override fun onError(e: Throwable?) {
-        progressDialog.dismiss()
+        mProgressDialog.dismiss()
     }
 
     override fun onCompleted() {
-        progressDialog.dismiss()
+        mProgressDialog.dismiss()
     }
 
     override fun onStart() {
         super.onStart()
-        progressDialog.show()
+        mProgressDialog.show()
     }
 
     override fun onNext(t: T) {

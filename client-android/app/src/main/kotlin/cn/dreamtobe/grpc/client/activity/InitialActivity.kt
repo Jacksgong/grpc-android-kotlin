@@ -13,24 +13,24 @@ import cn.dreamtobe.grpc.client.logic.ServerApi
  */
 class InitialActivity : AppCompatActivity() {
 
-    lateinit var hostEdt: EditText
-    lateinit var portEdt: EditText
+    lateinit var mHostEdt: EditText
+    lateinit var mPortEdt: EditText
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         title = "Initial"
         setContentView(R.layout.activity_initial)
 
-        hostEdt = findViewById(R.id.host_edt) as EditText
-        portEdt = findViewById(R.id.port_edt) as EditText
+        mHostEdt = findViewById(R.id.host_edt) as EditText
+        mPortEdt = findViewById(R.id.port_edt) as EditText
 
-        hostEdt.setText(ServerApi.host)
-        portEdt.setText(ServerApi.port.toString())
+        mHostEdt.setText(ServerApi.HOST)
+        mPortEdt.setText(ServerApi.PORT.toString())
     }
 
     fun onClickConfirm(view: View) {
-        ServerApi.host = hostEdt.text.toString()
-        ServerApi.port = portEdt.text.toString().toInt()
+        ServerApi.HOST = mHostEdt.text.toString()
+        ServerApi.PORT = mPortEdt.text.toString().toInt()
 
         startActivity(Intent(this, LoginActivity::class.java))
         finish()

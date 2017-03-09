@@ -24,13 +24,13 @@ import de.mkammerer.grpcchat.protocol.RoomMessage
  */
 class ConversationActivity : AppCompatActivity(), ConversationMvpView {
 
-    lateinit var toolbar: Toolbar
+    private lateinit var mToolbar: Toolbar
 
-    lateinit var presenter: ConversationPresenter
-    lateinit var progressView: ProgressBar
-    lateinit var recyclerView: RecyclerView
-    lateinit var adapter: ConversationListAdapter
-    lateinit var refreshBtn: Button
+    private lateinit var mPresenter: ConversationPresenter
+    private lateinit var mProgressView: ProgressBar
+    private lateinit var mRecyclerView: RecyclerView
+    private lateinit var mAdapter: ConversationListAdapter
+    private lateinit var mRefreshBtn: Button
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -38,76 +38,76 @@ class ConversationActivity : AppCompatActivity(), ConversationMvpView {
 
         setContentView(R.layout.activity_conversation)
 
-        presenter = ConversationPresenter(this)
-        presenter.attachView(this)
+        mPresenter = ConversationPresenter(this)
+        mPresenter.attachView(this)
 
-        toolbar = findViewById(R.id.toolbar) as Toolbar
-        setSupportActionBar(toolbar)
+        mToolbar = findViewById(R.id.toolbar) as Toolbar
+        setSupportActionBar(mToolbar)
         supportActionBar!!.title = "Conversation"
 
-        progressView = findViewById(R.id.progressBar) as ProgressBar
-        recyclerView = findViewById(R.id.recycler_view) as RecyclerView
+        mProgressView = findViewById(R.id.progressBar) as ProgressBar
+        mRecyclerView = findViewById(R.id.recycler_view) as RecyclerView
         val adapter = ConversationListAdapter()
         adapter.callback = object : ConversationListAdapter.Callback {
             override fun onItemClick(roomMessage: RoomMessage) {
-                Snackbar.make(recyclerView, "jump to chat page: ${roomMessage.title}, ${roomMessage.desc}", Snackbar.LENGTH_LONG).show()
+                Snackbar.make(mRecyclerView, "jump to chat page: ${roomMessage.title}, ${roomMessage.desc}", Snackbar.LENGTH_LONG).show()
             }
         }
-        this.adapter = adapter
-        recyclerView.adapter = adapter
-        recyclerView.layoutManager = LinearLayoutManager(this)
+        this.mAdapter = adapter
+        mRecyclerView.adapter = adapter
+        mRecyclerView.layoutManager = LinearLayoutManager(this)
 
-        refreshBtn = findViewById(R.id.refresh_btn) as Button
-        refreshBtn.setOnClickListener { presenter.listRooms() }
+        mRefreshBtn = findViewById(R.id.refresh_btn) as Button
+        mRefreshBtn.setOnClickListener { mPresenter.listRooms() }
     }
 
     override fun onStart() {
         super.onStart()
-        presenter.listRooms()
+        mPresenter.listRooms()
     }
 
     override fun onStop() {
         super.onStop()
-        presenter.detachView()
+        mPresenter.detachView()
     }
 
     override fun loading() {
-        recyclerView.visibility = View.GONE
-        progressView.visibility = View.VISIBLE
-        refreshBtn.visibility = View.GONE
+        mRecyclerView.visibility = View.GONE
+        mProgressView.visibility = View.VISIBLE
+        mRefreshBtn.visibility = View.GONE
     }
 
     override fun showError(error: Error) {
-        refreshBtn.visibility = View.VISIBLE
-        progressView.visibility = View.GONE
-        Snackbar.make(recyclerView, "occur error code: ${error.code} message: ${error.message}",
+        mRefreshBtn.visibility = View.VISIBLE
+        mProgressView.visibility = View.GONE
+        Snackbar.make(mRecyclerView, "occur error code: ${error.code} message: ${error.message}",
                 Snackbar.LENGTH_LONG).show()
         Logger.log(javaClass, error.message)
     }
 
     override fun showConversations(roomMessageList: List<RoomMessage>) {
-        refreshBtn.visibility = View.GONE
-        recyclerView.visibility = View.VISIBLE
-        progressView.visibility = View.GONE
+        mRefreshBtn.visibility = View.GONE
+        mRecyclerView.visibility = View.VISIBLE
+        mProgressView.visibility = View.GONE
 
-        adapter.conversationList = roomMessageList.toMutableList()
-        adapter.notifyDataSetChanged()
-        recyclerView.requestFocus()
+        mAdapter.conversationList = roomMessageList.toMutableList()
+        mAdapter.notifyDataSetChanged()
+        mRecyclerView.requestFocus()
 
-        Snackbar.make(recyclerView, "load ${roomMessageList.size} rooms from server",
+        Snackbar.make(mRecyclerView, "load ${roomMessageList.size} rooms from server",
                 Snackbar.LENGTH_LONG).show()
     }
 
     override fun createdNewRoom() {
-        Snackbar.make(recyclerView, "create one new room",
+        Snackbar.make(mRecyclerView, "create one new room",
                 Snackbar.LENGTH_LONG).show()
-        presenter.listRooms()
+        mPresenter.listRooms()
     }
 
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {
         when (item!!.itemId) {
-            R.id.menu_refresh -> presenter.listRooms()
-            R.id.menu_create -> presenter.createRoom()
+            R.id.menu_refresh -> mPresenter.listRooms()
+            R.id.menu_create -> mPresenter.createRoom()
             else -> return super.onOptionsItemSelected(item)
         }
         return true
