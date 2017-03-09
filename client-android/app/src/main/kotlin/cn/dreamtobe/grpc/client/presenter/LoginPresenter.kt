@@ -64,7 +64,11 @@ class LoginPresenter : Presenter<LoginMvpView>, LoaderManager.LoaderCallbacks<Cu
         mView?.resetError()
 
         // Check for a valid password, if the user entered one.
-        if (!TextUtils.isEmpty(password) && !isPasswordValid(password)) {
+        if (TextUtils.isEmpty(password)) {
+            mView?.showPasswordError(R.string.error_field_required)
+            return
+        }
+        if (!isPasswordValid(password)) {
             mView?.showPasswordError(R.string.error_invalid_password)
             return
         }
@@ -74,7 +78,6 @@ class LoginPresenter : Presenter<LoginMvpView>, LoaderManager.LoaderCallbacks<Cu
             mView?.showUserNameError(R.string.error_field_required)
             return
         }
-
         if (!isEmailValid(username)) {
             mView?.showUserNameError(R.string.error_invalid_email)
             return

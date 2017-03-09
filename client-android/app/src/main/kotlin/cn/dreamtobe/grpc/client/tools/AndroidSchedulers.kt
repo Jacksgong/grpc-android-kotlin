@@ -19,6 +19,7 @@ package cn.dreamtobe.grpc.client.tools
 import android.os.Handler
 import android.os.Looper
 import rx.Scheduler
+import rx.functions.Func1
 import rx.schedulers.Schedulers
 import java.util.concurrent.LinkedBlockingQueue
 import java.util.concurrent.ThreadFactory
@@ -55,5 +56,23 @@ object AndroidSchedulers {
         return Schedulers.from(executor)
     }
 
-    fun mainThread() = HandlerThreadScheduler(Handler(Looper.getMainLooper()))
+
+    private val mainThreadScheduler by lazy { HandlerThreadScheduler(Handler(Looper.getMainLooper())) }
+    fun mainThread(): Scheduler {
+        if (Hook.onMainScheduler != null) return Hook.onMainScheduler!!.call(mainThreadScheduler)
+
+        return mainThreadScheduler
+    }
+
+    object Hook {
+        internal var onMainScheduler: Func1<Scheduler, Scheduler>? = null
+        fun reset() {
+            onMainScheduler = null
+        }
+
+        //Func1<Scheduler, Scheduler> onIOScheduler
+        fun setOnMainScheduler(scheduler: Func1<Scheduler, Scheduler>) {
+            onMainScheduler = scheduler
+        }
+    }
 }
