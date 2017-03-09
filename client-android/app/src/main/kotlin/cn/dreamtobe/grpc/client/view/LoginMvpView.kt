@@ -1,6 +1,5 @@
 package cn.dreamtobe.grpc.client.view
 
-import android.app.LoaderManager
 import de.mkammerer.grpcchat.protocol.Error
 
 /**
@@ -14,5 +13,4 @@ interface LoginMvpView {
     fun showPasswordError(tipsId: Int)
     fun resetError()
     fun addEmailsToAutoComplete(emailAddressCollection: List<String>)
-    fun getLoaderManager(): LoaderManager
 }

@@ -53,7 +53,7 @@ class ConversationPresenter(private var mContext: Context?) : Presenter<Conversa
 
                     override fun onError(e: Throwable?) {
                         super.onError(e)
-                        mView?.showError(Error.newBuilder().setCode(400).setMessage(e.toString()).build())
+                        mView?.showError(Error.newBuilder().setCode(Codes.LOCAL_ERROR).setMessage(e.toString()).build())
                     }
                 })
     }

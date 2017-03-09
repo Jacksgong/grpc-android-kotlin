@@ -5,4 +5,5 @@ package cn.dreamtobe.grpc.client.logic
  */
 object Codes {
     const val SUCCESS = 0
+    const val LOCAL_ERROR = -1
 }

@@ -10,6 +10,7 @@ import android.os.Bundle
 import android.provider.ContactsContract
 import android.text.TextUtils
 import cn.dreamtobe.grpc.client.R
+import cn.dreamtobe.grpc.client.logic.Codes
 import cn.dreamtobe.grpc.client.logic.ServerApi
 import cn.dreamtobe.grpc.client.tools.AndroidSchedulers
 import cn.dreamtobe.grpc.client.view.LoginMvpView
@@ -82,7 +83,7 @@ class LoginPresenter(private var mContext: Context) : Presenter<LoginMvpView>, L
                         },
 
                         { e ->
-                            mView?.showError(Error.newBuilder().setCode(-1).setMessage(e.toString()).build())
+                            mView?.showError(Error.newBuilder().setCode(Codes.LOCAL_ERROR).setMessage(e.toString()).build())
                         }
                 )
     }
