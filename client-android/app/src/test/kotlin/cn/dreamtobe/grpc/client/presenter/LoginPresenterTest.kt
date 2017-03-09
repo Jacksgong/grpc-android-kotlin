@@ -16,54 +16,69 @@
 
 package cn.dreamtobe.grpc.client.presenter
 
-import cn.dreamtobe.grpc.client.AndroidTest
-import cn.dreamtobe.grpc.client.GrpcClientApplication
+import cn.dreamtobe.grpc.client.GrpcClientTest
 import cn.dreamtobe.grpc.client.R
-import cn.dreamtobe.grpc.client.model.ServerApi
-import cn.dreamtobe.grpc.client.tools.AndroidSchedulers
 import cn.dreamtobe.grpc.client.view.LoginMvpView
-import com.nhaarman.mockito_kotlin.*
+import com.nhaarman.mockito_kotlin.mock
+import com.nhaarman.mockito_kotlin.verify
+import com.nhaarman.mockito_kotlin.whenever
 import de.mkammerer.grpcchat.protocol.Error
 import de.mkammerer.grpcchat.protocol.LoginOrRegisterResponse
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.mockito.Mockito
-import org.robolectric.RuntimeEnvironment
-import rx.functions.Func1
-import rx.plugins.RxJavaHooks
-import rx.schedulers.Schedulers
 
 /**
  * Created by Jacksgong on 09/03/2017.
  */
-class LoginPresenterTest : AndroidTest() {
+class LoginPresenterTest : GrpcClientTest<LoginMvpView, LoginPresenter>() {
 
-    lateinit var loginPresenter: LoginPresenter
-    lateinit var loginMvpView: LoginMvpView
-    lateinit var serverApi: ServerApi
 
     @Before
     fun setup() {
-        val application = RuntimeEnvironment.application as GrpcClientApplication
-
-        serverApi = mock()
-        application.setServerApi(serverApi)
-
-        loginPresenter = LoginPresenter()
-        loginMvpView = mock {
-            on { getContext() } doReturn application
-        }
-        loginPresenter.attachView(loginMvpView)
+        create<LoginMvpView, LoginPresenter>()
     }
 
     @After
     fun tearDown() {
-        loginPresenter.detachView()
+        destroy()
     }
 
     @Test
-    fun attemptLoginOrRegisterInvalidParamsRaiseError() {
+    fun attemptLoginOrRegister_success_invokeLoggedIn() {
+        whenever(serverApi.loginOrRegister(Mockito.anyString(), Mockito.anyString()))
+                .thenReturn(errorLoginOrRegisterResponse)
+        presenter.attemptLoginOrRegister(correctUserName, correctPassword)
+        verify(mvpView).showLoading()
+        verify(mvpView).showError(mockError)
+    }
+
+    @Test
+    fun attemptLoginOrRegister_error_invokeShowError() {
+        whenever(serverApi.loginOrRegister(Mockito.anyString(), Mockito.anyString()))
+                .thenReturn(correctLoginOrRegisterResponse)
+        presenter.attemptLoginOrRegister(correctUserName, correctPassword)
+        verify(mvpView).showLoading()
+        verify(mvpView).loggedIn(true)
+    }
+
+    @Test
+    fun attemptLoginOrRegister_InvalidParams_invokeError() {
+        presenter.attemptLoginOrRegister(invalidUserName, correctPassword)
+        verify(mvpView).showUserNameError(R.string.error_invalid_email)
+
+        presenter.attemptLoginOrRegister(correctUserName, shortPassword)
+        verify(mvpView).showPasswordError(R.string.error_invalid_password)
+
+        presenter.attemptLoginOrRegister(emptyUserName, correctPassword)
+        verify(mvpView).showUserNameError(R.string.error_field_required)
+
+        presenter.attemptLoginOrRegister(correctUserName, emptyPassword)
+        verify(mvpView).showPasswordError(R.string.error_field_required)
+    }
+
+    companion object {
         val emptyUserName = ""
         val emptyPassword = ""
         val invalidUserName = "12"
@@ -71,40 +86,7 @@ class LoginPresenterTest : AndroidTest() {
         val correctUserName = "abc@iiii.com"
         val correctPassword = "12345"
 
-        loginPresenter.attemptLoginOrRegister(invalidUserName, correctPassword)
-        verify(loginMvpView).showUserNameError(R.string.error_invalid_email)
-
-        loginPresenter.attemptLoginOrRegister(correctUserName, shortPassword)
-        verify(loginMvpView).showPasswordError(R.string.error_invalid_password)
-
-        loginPresenter.attemptLoginOrRegister(emptyUserName, correctPassword)
-        verify(loginMvpView).showUserNameError(R.string.error_field_required)
-
-        loginPresenter.attemptLoginOrRegister(correctUserName, emptyPassword)
-        verify(loginMvpView).showPasswordError(R.string.error_field_required)
-
-        RxJavaHooks.reset()
-        RxJavaHooks.setOnIOScheduler { Schedulers.immediate() }
-        AndroidSchedulers.Hook.setOnMainScheduler(Func1 { Schedulers.immediate() })
-
-        whenever(serverApi.loginOrRegister(Mockito.anyString(), Mockito.anyString()))
-                .thenReturn(CORRECT_LOGIN_OR_REGISTER_RESPONSE)
-        loginPresenter.attemptLoginOrRegister(correctUserName, correctPassword)
-        verify(loginMvpView).showLoading()
-        verify(loginMvpView).loggedIn(true)
-
-        whenever(serverApi.loginOrRegister(Mockito.anyString(), Mockito.anyString()))
-                .thenReturn(ERROR_LOGIN_OR_REGISTER_RESPONSE)
-        loginPresenter.attemptLoginOrRegister(correctUserName, correctPassword)
-        verify(loginMvpView, times(2)).showLoading()
-        verify(loginMvpView).showError(MOCK_ERROR)
-
-        RxJavaHooks.reset()
-        AndroidSchedulers.Hook.reset()
-    }
-
-    companion object {
-        val CORRECT_LOGIN_OR_REGISTER_RESPONSE =
+        val correctLoginOrRegisterResponse =
                 LoginOrRegisterResponse.newBuilder()
                         .setPerformedRegister(true)
                         .setToken("tempToken")
@@ -112,10 +94,10 @@ class LoginPresenterTest : AndroidTest() {
                         // we have to declare type cast, if not, it will raise Type mismatch
                         .build() as LoginOrRegisterResponse
 
-        val MOCK_ERROR = mock<Error>()
-        val ERROR_LOGIN_OR_REGISTER_RESPONSE =
+        val mockError = mock<Error>()
+        val errorLoginOrRegisterResponse =
                 LoginOrRegisterResponse.newBuilder()
-                        .setError(MOCK_ERROR)
+                        .setError(mockError)
                         .build() as LoginOrRegisterResponse
     }
 
