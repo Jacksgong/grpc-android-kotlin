@@ -6,7 +6,7 @@
 
 #### Android
 
-https://raw.githubusercontent.com/Jacksgong/grpc-android-kotlin/master/arts/demo.gif
+![](https://raw.githubusercontent.com/Jacksgong/grpc-android-kotlin/master/arts/demo.gif)
 
 #### Back-end(Logs)
 
