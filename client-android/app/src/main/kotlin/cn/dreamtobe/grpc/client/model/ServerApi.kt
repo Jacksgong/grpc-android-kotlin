@@ -1,4 +1,8 @@
-package cn.dreamtobe.grpc.client.logic
+/*
+ * This file is special, under LGPLv3 license.
+ */
+
+package cn.dreamtobe.grpc.client.model
 
 import cn.dreamtobe.grpc.client.tools.Logger
 import de.mkammerer.grpcchat.protocol.*
