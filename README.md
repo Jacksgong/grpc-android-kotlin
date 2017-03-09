@@ -27,7 +27,7 @@
 
 ## Run
 
-#### 1. Fetch the back-end codes(grpc-chat-kotlin):
+#### 1. Fetch the back-end codes([grpc-chat-kotlin](https://github.com/Jacksgong/grpc-chat-kotlin)):
 
 ```bash
 git submodule init
