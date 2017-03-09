@@ -7,4 +7,10 @@
         android:title="refresh"
         app:showAsAction="ifRoom"/>
 
+    <item
+        android:id="@+id/menu_create"
+        android:icon="@drawable/ic_add_black_24dp"
+        android:title="create room"
+        app:showAsAction="ifRoom"/>
+
 </menu>

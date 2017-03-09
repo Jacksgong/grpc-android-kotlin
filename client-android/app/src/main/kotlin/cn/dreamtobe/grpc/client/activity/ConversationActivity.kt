@@ -14,6 +14,7 @@ import android.widget.ProgressBar
 import cn.dreamtobe.grpc.client.R
 import cn.dreamtobe.grpc.client.adapter.ConversationListAdapter
 import cn.dreamtobe.grpc.client.presenter.ConversationPresenter
+import cn.dreamtobe.grpc.client.tools.Logger
 import cn.dreamtobe.grpc.client.view.ConversationMvpView
 import de.mkammerer.grpcchat.protocol.Error
 import de.mkammerer.grpcchat.protocol.RoomMessage
@@ -37,7 +38,7 @@ class ConversationActivity : AppCompatActivity(), ConversationMvpView {
 
         setContentView(R.layout.activity_conversation)
 
-        presenter = ConversationPresenter()
+        presenter = ConversationPresenter(this)
         presenter.attachView(this)
 
         toolbar = findViewById(R.id.toolbar) as Toolbar
@@ -81,6 +82,7 @@ class ConversationActivity : AppCompatActivity(), ConversationMvpView {
         progressView.visibility = View.GONE
         Snackbar.make(recyclerView, "occur error code: ${error.code} message: ${error.message}",
                 Snackbar.LENGTH_LONG).show()
+        Logger.log(javaClass, error.message)
     }
 
     override fun showConversations(roomMessageList: List<RoomMessage>) {
@@ -96,9 +98,16 @@ class ConversationActivity : AppCompatActivity(), ConversationMvpView {
                 Snackbar.LENGTH_LONG).show()
     }
 
+    override fun createdNewRoom() {
+        Snackbar.make(recyclerView, "create one new room",
+                Snackbar.LENGTH_LONG).show()
+        presenter.listRooms()
+    }
+
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {
         when (item!!.itemId) {
             R.id.menu_refresh -> presenter.listRooms()
+            R.id.menu_create -> presenter.createRoom()
             else -> return super.onOptionsItemSelected(item)
         }
         return true

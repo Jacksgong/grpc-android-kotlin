@@ -3,6 +3,9 @@ package cn.dreamtobe.grpc.client.logic
 import cn.dreamtobe.grpc.client.tools.Logger
 import de.mkammerer.grpcchat.protocol.*
 import io.grpc.ManagedChannelBuilder
+import java.text.DateFormat
+import java.text.SimpleDateFormat
+import java.util.*
 
 
 object ServerApi {
@@ -14,25 +17,32 @@ object ServerApi {
 
     private val connector: ChatGrpc.ChatBlockingStub
     private var token: String? = null
+    private val dateFormat: DateFormat
+    private var loggedInUser : String? = null
 
     init {
         val channel = ManagedChannelBuilder.forAddress(host, port)
                 .usePlaintext(true)
                 .build()
         connector = ChatGrpc.newBlockingStub(channel)
+        dateFormat = SimpleDateFormat("MM-dd hh:mm:ss", Locale.CHINA)
     }
 
-    fun createRoom() {
+
+    fun createRoom(): Boolean {
         if (token == null) throw TokenMissingException()
 
-        val request = CreateRoomRequest.newBuilder().setToken(token).setName("Room #1").build()
+        val name = dateFormat.format(Date())
+        val request = CreateRoomRequest.newBuilder().setToken(token).setName(name).setDesc("create by $loggedInUser").build()
         val response = connector.createRoom(request)
 
         if (response.created) {
-            Logger.log(javaClass, "Room created")
+            Logger.log(javaClass, "Room created: $name")
         } else {
-            Logger.log(javaClass, "Room creation failed, error: ${response.error}")
+            Logger.log(javaClass, "Room creation failed: $name, error: ${response.error}")
         }
+
+        return response.created
     }
 
     fun register(username: String, password: String): Boolean {
@@ -41,8 +51,10 @@ object ServerApi {
 
         if (response.registered) {
             Logger.log(javaClass, "Register successful")
+            loggedInUser = username
         } else {
             Logger.log(javaClass, "Register failed, error: ${response.error}")
+            loggedInUser = null
         }
 
         return response.registered
@@ -55,8 +67,10 @@ object ServerApi {
         if (response.loggedIn) {
             token = response.token
             Logger.log(javaClass, "Login successful, token is $token")
+            loggedInUser = username
         } else {
             Logger.log(javaClass, "Login failed, error: ${response.error}")
+            loggedInUser = null
         }
 
         return response
@@ -68,9 +82,11 @@ object ServerApi {
 
         if (response.loggedIn) {
             token = response.token
+            loggedInUser = username
             Logger.log(javaClass, "Login successful, token is $token")
         } else {
             Logger.log(javaClass, "Login failed, error: ${response.error}")
+            loggedInUser = null
         }
 
         return response.loggedIn

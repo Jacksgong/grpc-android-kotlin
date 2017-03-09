@@ -10,4 +10,5 @@ interface ConversationMvpView {
     fun loading()
     fun showConversations(roomMessageList: List<RoomMessage>)
     fun showError(error: Error)
+    fun createdNewRoom()
 }
