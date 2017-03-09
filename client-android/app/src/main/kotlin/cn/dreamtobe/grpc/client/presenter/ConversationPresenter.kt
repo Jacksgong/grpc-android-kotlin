@@ -16,7 +16,7 @@
 
 package cn.dreamtobe.grpc.client.presenter
 
-import android.content.Context
+import cn.dreamtobe.grpc.client.GrpcClientApplication
 import cn.dreamtobe.grpc.client.model.Codes
 import cn.dreamtobe.grpc.client.model.ServerApi
 import cn.dreamtobe.grpc.client.tools.AndroidSchedulers
@@ -31,17 +31,18 @@ import rx.schedulers.Schedulers
 /**
  * Created by Jacksgong on 08/03/2017.
  */
-class ConversationPresenter(private var mContext: Context?) : Presenter<ConversationMvpView> {
+class ConversationPresenter : Presenter<ConversationMvpView> {
 
     private var mView: ConversationMvpView? = null
+    private lateinit var mServerApi: ServerApi
 
     override fun attachView(view: ConversationMvpView) {
         mView = view
+        mServerApi = GrpcClientApplication.get(view.getContext()).getServerApi()
     }
 
     override fun detachView() {
         mView = null
-        mContext = null
     }
 
     fun createRoom() {
@@ -49,7 +50,7 @@ class ConversationPresenter(private var mContext: Context?) : Presenter<Conversa
 
         Observable.create(Observable.OnSubscribe<CreateRoomResponse> { subscriber ->
             try {
-                subscriber.onNext(ServerApi.createRoom())
+                subscriber.onNext(mServerApi.createRoom())
                 subscriber.onCompleted()
             } catch (ex: Throwable) {
                 subscriber.onError(ex)
@@ -57,7 +58,7 @@ class ConversationPresenter(private var mContext: Context?) : Presenter<Conversa
 
         }).subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(object : ProgressSubscriber<CreateRoomResponse>(mContext!!) {
+                .subscribe(object : ProgressSubscriber<CreateRoomResponse>(mView!!.getContext()) {
                     override fun onNext(response: CreateRoomResponse) {
                         super.onNext(response)
                         if (response.created) {
@@ -80,7 +81,7 @@ class ConversationPresenter(private var mContext: Context?) : Presenter<Conversa
         mView?.showLoading()
         Observable.create(Observable.OnSubscribe<ListRoomsResponse> { subscriber ->
             try {
-                subscriber.onNext(ServerApi.listRooms())
+                subscriber.onNext(mServerApi.listRooms())
                 subscriber.onCompleted()
             } catch (ex: Throwable) {
                 subscriber.onError(ex)

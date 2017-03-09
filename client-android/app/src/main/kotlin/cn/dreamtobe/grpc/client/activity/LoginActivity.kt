@@ -20,6 +20,7 @@ import android.Manifest.permission.READ_CONTACTS
 import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
 import android.annotation.TargetApi
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
@@ -38,6 +39,9 @@ import de.mkammerer.grpcchat.protocol.Error
  * A login screen that offers login via email/password.
  */
 class LoginActivity : AppCompatActivity(), LoginMvpView {
+    override fun getContext(): Context {
+        return this
+    }
 
     // UI references.
     private lateinit var mUserNameView: AutoCompleteTextView
@@ -56,7 +60,7 @@ class LoginActivity : AppCompatActivity(), LoginMvpView {
         title = "Login"
         setContentView(R.layout.activity_login)
 
-        mPresenter = LoginPresenter(this)
+        mPresenter = LoginPresenter()
         mPresenter.attachView(this)
 
         // Set up the login form.

@@ -22,7 +22,7 @@ import de.mkammerer.grpcchat.protocol.RoomMessage
 /**
  * Created by Jacksgong on 08/03/2017.
  */
-interface ConversationMvpView {
+interface ConversationMvpView : MvpView {
     fun showLoading()
     fun showConversations(roomMessageList: List<RoomMessage>)
     fun showError(error: Error)

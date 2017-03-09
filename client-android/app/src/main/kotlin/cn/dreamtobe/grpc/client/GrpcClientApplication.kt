@@ -14,19 +14,29 @@
  * limitations under the License.
  */
 
-package cn.dreamtobe.grpc.client.view
+package cn.dreamtobe.grpc.client
 
-import de.mkammerer.grpcchat.protocol.Error
+import android.app.Application
+import android.content.Context
+import cn.dreamtobe.grpc.client.model.ServerApi
 
 /**
  * Created by Jacksgong on 09/03/2017.
  */
-interface LoginMvpView : MvpView {
-    fun showLoading()
-    fun loggedIn(performedRegister: Boolean)
-    fun showError(error: Error)
-    fun showUserNameError(tipsId: Int)
-    fun showPasswordError(tipsId: Int)
-    fun resetError()
-    fun addEmailsToAutoComplete(emailAddressCollection: List<String>)
+class GrpcClientApplication : Application() {
+    private var mServerApi: ServerApi? = null
+
+    fun getServerApi(): ServerApi {
+        if (mServerApi == null) mServerApi = ServerApi.Factory.create()
+        return mServerApi!!
+    }
+
+    fun setServerApi(serverApi: ServerApi) {
+        mServerApi = serverApi
+    }
+
+    companion object {
+        fun get(context: Context): GrpcClientApplication = context.applicationContext as GrpcClientApplication
+    }
+
 }

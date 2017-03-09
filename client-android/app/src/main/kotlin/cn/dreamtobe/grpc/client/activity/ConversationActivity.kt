@@ -16,6 +16,7 @@
 
 package cn.dreamtobe.grpc.client.activity
 
+import android.content.Context
 import android.os.Bundle
 import android.support.design.widget.Snackbar
 import android.support.v7.app.AppCompatActivity
@@ -39,6 +40,9 @@ import de.mkammerer.grpcchat.protocol.RoomMessage
  * Created by Jacksgong on 07/03/2017.
  */
 class ConversationActivity : AppCompatActivity(), ConversationMvpView {
+    override fun getContext(): Context {
+        return this
+    }
 
     private lateinit var mToolbar: Toolbar
 
@@ -54,7 +58,7 @@ class ConversationActivity : AppCompatActivity(), ConversationMvpView {
 
         setContentView(R.layout.activity_conversation)
 
-        mPresenter = ConversationPresenter(this)
+        mPresenter = ConversationPresenter()
         mPresenter.attachView(this)
 
         mToolbar = findViewById(R.id.toolbar) as Toolbar

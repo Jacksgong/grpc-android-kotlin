@@ -21,6 +21,7 @@ import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.view.View
 import android.widget.EditText
+import cn.dreamtobe.grpc.client.GrpcClientApplication
 import cn.dreamtobe.grpc.client.R
 import cn.dreamtobe.grpc.client.model.ServerApi
 
@@ -31,6 +32,7 @@ class InitialActivity : AppCompatActivity() {
 
     lateinit var mHostEdt: EditText
     lateinit var mPortEdt: EditText
+    lateinit var mServerApi: ServerApi
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -40,13 +42,14 @@ class InitialActivity : AppCompatActivity() {
         mHostEdt = findViewById(R.id.host_edt) as EditText
         mPortEdt = findViewById(R.id.port_edt) as EditText
 
-        mHostEdt.setText(ServerApi.HOST)
-        mPortEdt.setText(ServerApi.PORT.toString())
+        mServerApi = GrpcClientApplication.get(this).getServerApi()
+        mHostEdt.setText(mServerApi.getHost())
+        mPortEdt.setText(mServerApi.getPort().toString())
     }
 
     fun onClickConfirm(view: View) {
-        ServerApi.HOST = mHostEdt.text.toString()
-        ServerApi.PORT = mPortEdt.text.toString().toInt()
+        mServerApi.setHost(mHostEdt.text.toString())
+        mServerApi.setPort(mPortEdt.text.toString().toInt())
 
         startActivity(Intent(this, LoginActivity::class.java))
         finish()

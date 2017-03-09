@@ -17,7 +17,6 @@
 package cn.dreamtobe.grpc.client.presenter
 
 import android.app.LoaderManager
-import android.content.Context
 import android.content.CursorLoader
 import android.content.Loader
 import android.database.Cursor
@@ -25,6 +24,7 @@ import android.net.Uri
 import android.os.Bundle
 import android.provider.ContactsContract
 import android.text.TextUtils
+import cn.dreamtobe.grpc.client.GrpcClientApplication
 import cn.dreamtobe.grpc.client.R
 import cn.dreamtobe.grpc.client.model.Codes
 import cn.dreamtobe.grpc.client.model.ServerApi
@@ -38,12 +38,14 @@ import rx.schedulers.Schedulers
 /**
  * Created by Jacksgong on 09/03/2017.
  */
-class LoginPresenter(private var mContext: Context) : Presenter<LoginMvpView>, LoaderManager.LoaderCallbacks<Cursor> {
+class LoginPresenter : Presenter<LoginMvpView>, LoaderManager.LoaderCallbacks<Cursor> {
 
     private var mView: LoginMvpView? = null
+    private lateinit var mServerApi: ServerApi
 
     override fun attachView(view: LoginMvpView) {
         mView = view
+        mServerApi = GrpcClientApplication.get(view.getContext()).getServerApi()
     }
 
     override fun detachView() {
@@ -81,7 +83,7 @@ class LoginPresenter(private var mContext: Context) : Presenter<LoginMvpView>, L
         mView?.showLoading()
         Observable.create(Observable.OnSubscribe<LoginOrRegisterResponse> { subscriber ->
             try {
-                subscriber.onNext(ServerApi.loginOrRegister(username, password))
+                subscriber.onNext(mServerApi.loginOrRegister(username, password))
                 subscriber.onCompleted()
             } catch (ex: Throwable) {
                 subscriber.onError(ex)
@@ -119,7 +121,7 @@ class LoginPresenter(private var mContext: Context) : Presenter<LoginMvpView>, L
     }
 
     override fun onCreateLoader(id: Int, args: Bundle?): Loader<Cursor> {
-        return CursorLoader(mContext,
+        return CursorLoader(mView!!.getContext(),
                 // Retrieve data rows for the device user's 'profile' contact.
                 Uri.withAppendedPath(ContactsContract.Profile.CONTENT_URI,
                         ContactsContract.Contacts.Data.CONTENT_DIRECTORY), ProfileQuery.PROJECTION,
