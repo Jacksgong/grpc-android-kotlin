@@ -1,16 +1,16 @@
 # Grpc Android Kotlin
 
-> Simple [GRPC](https://github.com/grpc/grpc-java) Server/Android written in kotlin, protobuf generated java files
+> 通过[GRPC](https://github.com/grpc/grpc-java)，包含后台，Android端，都是用kotlin编写。
 
-- [中文文档](https://github.com/Jacksgong/grpc-android-kotlin/blob/master/README-zh.md)
+- [English](https://github.com/Jacksgong/grpc-android-kotlin)
 
-## Kickoff
+## 快速预览
 
 #### Android
 
 ![](https://raw.githubusercontent.com/Jacksgong/grpc-android-kotlin/master/arts/demo.gif)
 
-#### Back-end(Logs)
+#### 后端(日志)
 
 ```
 20:51:16.650 [main] INFO  de.mkammerer.grpcchat.server.Server - Server running on port 5001
@@ -27,16 +27,16 @@
 > Building 93% > :server:run
 ```
 
-## Run
+## 运行
 
-#### 1. Fetch the back-end codes([grpc-chat-kotlin](https://github.com/Jacksgong/grpc-chat-kotlin)):
+#### 1. 获取后端代码([grpc-chat-kotlin](https://github.com/Jacksgong/grpc-chat-kotlin)):
 
 ```bash
 git submodule init
 git submodule update
 ```
 
-#### 2. Run back-end codes
+#### 2. 运行后端
 
 ```bash
 # generate protocol buffers for back-end
@@ -46,21 +46,21 @@ bash refresh-backend-proto.sh
 bash run-server.sh
 ```
 
-#### 3. Run Android codes
+#### 3. 运行Android端
 
 ```bash
 # run Android application
 ./gradlew installDebug
 ```
 
-If your proto is changed or you android project has been cleaned don't forget refresh protocol buffers for Android manually(because compile-kotlin doesn't depence on compile-protocol, so we have to do that manually)
+由于`compile-kotlin`并没有在`compile-proto`之后，因此如果你修改了proto文件，或者clean了Android项目，记得运行下面的脚本，手动刷新生成下对应的proto文件，否则会有找不到proto代码的问题。
 
 ```bash
 # generate protocol buffers for Android
 bash refresh-android-proto.sh
 ```
 
-If you want to run unit-test for Android project
+如果你想要运行Android项目的单元测试(这也是很好的一个kotlin Android项目单元测试案例)
 
 ```bash
 # run unit-test on Android project
