@@ -51,7 +51,7 @@ bash run-server.sh
 ./gradlew installDebug
 ```
 
-If your proto is changed, don't forget refresh protocol buffers for Android manually(because compile-kotlin doesn't depence on compile-protocol, so we have to do that manually)
+If your proto is changed or you android project has been cleaned don't forget refresh protocol buffers for Android manually(because compile-kotlin doesn't depence on compile-protocol, so we have to do that manually)
 
 ```bash
 # generate protocol buffers for Android
