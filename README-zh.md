@@ -60,7 +60,7 @@ bash run-server.sh
 bash refresh-android-proto.sh
 ```
 
-如果你想要运行Android项目的单元测试(这也是很好的一个kotlin Android项目单元测试案例)
+如果你想要运行Android项目的单元测试(这也是很好的一个kotlin Android项目[单元测试案例](https://github.com/Jacksgong/grpc-android-kotlin/tree/master/client-android/app/src/test/kotlin/cn/dreamtobe/grpc/client))
 
 ```bash
 # run unit-test on Android project
