@@ -40,117 +40,120 @@ interface ServerApi {
 
     class TokenMissingException : Exception("Token is missing. Call login() first")
 
-    object Factory {
-        fun create(): ServerApi {
-            return object : ServerApi {
+    class Factory {
+        companion object {
+            fun create(): ServerApi {
+                return object : ServerApi {
 
-                private var mPort: Int = 5001
-                private var mHost: String = "10.15.128.171"
+                    private var mPort: Int = 5001
+                    private var mHost: String = "10.15.128.171"
 
-                private val mConnector: ChatGrpc.ChatBlockingStub
-                private var mToken: String? = null
-                private val mDateFormat: DateFormat
-                private var mLoggedInUser: String? = null
+                    private val mConnector: ChatGrpc.ChatBlockingStub
+                    private var mToken: String? = null
+                    private val mDateFormat: DateFormat
+                    private var mLoggedInUser: String? = null
 
-                init {
-                    val channel = ManagedChannelBuilder.forAddress(mHost, mPort)
-                            .usePlaintext(true)
-                            .build()
-                    mConnector = ChatGrpc.newBlockingStub(channel)
-                    mDateFormat = SimpleDateFormat("MM-dd hh:mm:ss", Locale.CHINA)
-                }
-
-                override fun getPort() = mPort
-
-                override fun setPort(port: Int) {
-                    mPort = port
-                }
-
-                override fun getHost() = mHost
-
-                override fun setHost(host: String) {
-                    mHost = host
-                }
-
-                override fun createRoom(): CreateRoomResponse {
-                    if (mToken == null) throw TokenMissingException()
-
-                    val name = mDateFormat.format(Date())
-                    val request = CreateRoomRequest.newBuilder().setToken(mToken).setName(name).setDesc("create by $mLoggedInUser").build()
-                    val response = mConnector.createRoom(request)
-
-                    if (response.created) {
-                        Logger.log(javaClass, "Room created: $name")
-                    } else {
-                        Logger.log(javaClass, "Room creation failed: $name, error: ${response.error}")
+                    init {
+                        val channel = ManagedChannelBuilder.forAddress(mHost, mPort)
+                                .usePlaintext(true)
+                                .build()
+                        mConnector = ChatGrpc.newBlockingStub(channel)
+                        mDateFormat = SimpleDateFormat("MM-dd hh:mm:ss", Locale.CHINA)
                     }
 
-                    return response
-                }
+                    override fun getPort() = mPort
 
-                override fun register(username: String, password: String): Boolean {
-                    val request = RegisterRequest.newBuilder().setUsername(username).setPassword(password).build()
-                    val response = mConnector.register(request)
-
-                    if (response.registered) {
-                        Logger.log(javaClass, "Register successful")
-                        mLoggedInUser = username
-                    } else {
-                        Logger.log(javaClass, "Register failed, error: ${response.error}")
-                        mLoggedInUser = null
+                    override fun setPort(port: Int) {
+                        mPort = port
                     }
 
-                    return response.registered
-                }
+                    override fun getHost() = mHost
 
-                override fun loginOrRegister(username: String, password: String): LoginOrRegisterResponse {
-                    val request = LoginRequest.newBuilder().setUsername(username).setPassword(password).build()
-                    val response = mConnector.loginOrRegister(request)
-
-                    if (response.loggedIn) {
-                        mToken = response.token
-                        Logger.log(javaClass, "Login successful, token is $mToken")
-                        mLoggedInUser = username
-                    } else {
-                        Logger.log(javaClass, "Login failed, error: ${response.error}")
-                        mLoggedInUser = null
+                    override fun setHost(host: String) {
+                        mHost = host
                     }
 
-                    return response
-                }
+                    override fun createRoom(): CreateRoomResponse {
+                        if (mToken == null) throw TokenMissingException()
 
-                override fun login(username: String, password: String): Boolean {
-                    val request = LoginRequest.newBuilder().setUsername(username).setPassword(password).build()
-                    val response = mConnector.login(request)
+                        val name = mDateFormat.format(Date())
+                        val request = CreateRoomRequest.newBuilder().setToken(mToken).setName(name).setDesc("create by $mLoggedInUser").build()
+                        val response = mConnector.createRoom(request)
 
-                    if (response.loggedIn) {
-                        mToken = response.token
-                        mLoggedInUser = username
-                        Logger.log(javaClass, "Login successful, token is $mToken")
-                    } else {
-                        Logger.log(javaClass, "Login failed, error: ${response.error}")
-                        mLoggedInUser = null
+                        if (response.created) {
+                            Logger.log(javaClass, "Room created: $name")
+                        } else {
+                            Logger.log(javaClass, "Room creation failed: $name, error: ${response.error}")
+                        }
+
+                        return response
                     }
 
-                    return response.loggedIn
-                }
+                    override fun register(username: String, password: String): Boolean {
+                        val request = RegisterRequest.newBuilder().setUsername(username).setPassword(password).build()
+                        val response = mConnector.register(request)
 
-                override fun listRooms(): ListRoomsResponse {
-                    if (mToken == null) throw TokenMissingException()
+                        if (response.registered) {
+                            Logger.log(javaClass, "Register successful")
+                            mLoggedInUser = username
+                        } else {
+                            Logger.log(javaClass, "Register failed, error: ${response.error}")
+                            mLoggedInUser = null
+                        }
 
-                    val request = ListRoomsRequest.newBuilder().setToken(mToken).build()
-                    val response = mConnector.listRooms(request)
-
-                    if (response.error.code == Codes.SUCCESS) {
-                        Logger.log(javaClass, "Rooms on server:")
-                        response.roomsList.forEach { it -> Logger.log(javaClass, it.title) }
-                    } else {
-                        Logger.log(javaClass, "List rooms failed, error: ${response.error}")
+                        return response.registered
                     }
 
-                    return response
+                    override fun loginOrRegister(username: String, password: String): LoginOrRegisterResponse {
+                        val request = LoginRequest.newBuilder().setUsername(username).setPassword(password).build()
+                        val response = mConnector.loginOrRegister(request)
+
+                        if (response.loggedIn) {
+                            mToken = response.token
+                            Logger.log(javaClass, "Login successful, token is $mToken")
+                            mLoggedInUser = username
+                        } else {
+                            Logger.log(javaClass, "Login failed, error: ${response.error}")
+                            mLoggedInUser = null
+                        }
+
+                        return response
+                    }
+
+                    override fun login(username: String, password: String): Boolean {
+                        val request = LoginRequest.newBuilder().setUsername(username).setPassword(password).build()
+                        val response = mConnector.login(request)
+
+                        if (response.loggedIn) {
+                            mToken = response.token
+                            mLoggedInUser = username
+                            Logger.log(javaClass, "Login successful, token is $mToken")
+                        } else {
+                            Logger.log(javaClass, "Login failed, error: ${response.error}")
+                            mLoggedInUser = null
+                        }
+
+                        return response.loggedIn
+                    }
+
+                    override fun listRooms(): ListRoomsResponse {
+                        if (mToken == null) throw TokenMissingException()
+
+                        val request = ListRoomsRequest.newBuilder().setToken(mToken).build()
+                        val response = mConnector.listRooms(request)
+
+                        if (response.error.code == Codes.SUCCESS) {
+                            Logger.log(javaClass, "Rooms on server:")
+                            response.roomsList.forEach { it -> Logger.log(javaClass, it.title) }
+                        } else {
+                            Logger.log(javaClass, "List rooms failed, error: ${response.error}")
+                        }
+
+                        return response
+                    }
                 }
             }
+
         }
     }
 }

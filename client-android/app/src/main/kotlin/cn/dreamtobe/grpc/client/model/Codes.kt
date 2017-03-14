@@ -3,7 +3,9 @@
  */
 package cn.dreamtobe.grpc.client.model
 
-object Codes {
-    const val SUCCESS = 0
-    const val LOCAL_ERROR = -1
+class Codes {
+    companion object {
+        const val SUCCESS = 0
+        const val LOCAL_ERROR = -1
+    }
 }

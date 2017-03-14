@@ -30,49 +30,55 @@ import java.util.concurrent.atomic.AtomicInteger
 /**
  * Created by Jacksgong on 07/03/2017.
  */
-object AndroidSchedulers {
-    fun singleTaskThread(): Scheduler {
-        val executor = ThreadPoolExecutor(1, 1, 5, TimeUnit.SECONDS, LinkedBlockingQueue<Runnable>(), object : ThreadFactory {
+class AndroidSchedulers {
+    companion object {
+        fun singleTaskThread(): Scheduler {
+            val executor = ThreadPoolExecutor(1, 1, 5, TimeUnit.SECONDS, LinkedBlockingQueue<Runnable>(), object : ThreadFactory {
 
-            private val threadNumber = AtomicInteger(1)
-            private val group = Thread.currentThread().threadGroup
+                private val threadNumber = AtomicInteger(1)
+                private val group = Thread.currentThread().threadGroup
 
-            override fun newThread(r: Runnable?): Thread {
-                val t = Thread(group, r, "singleTaskThread ${threadNumber.getAndIncrement()}")
+                override fun newThread(r: Runnable?): Thread {
+                    val t = Thread(group, r, "singleTaskThread ${threadNumber.getAndIncrement()}")
 
-                if (t.isDaemon) {
-                    t.isDaemon = false
+                    if (t.isDaemon) {
+                        t.isDaemon = false
+                    }
+
+                    if (t.priority != Thread.NORM_PRIORITY) {
+                        t.priority = Thread.NORM_PRIORITY
+                    }
+                    return t
                 }
+            }, ThreadPoolExecutor.DiscardPolicy())
 
-                if (t.priority != Thread.NORM_PRIORITY) {
-                    t.priority = Thread.NORM_PRIORITY
-                }
-                return t
+            executor.allowCoreThreadTimeOut(true)
+
+            return Schedulers.from(executor)
+        }
+
+
+        private val mainThreadScheduler by lazy { HandlerThreadScheduler(Handler(Looper.getMainLooper())) }
+        fun mainThread(): Scheduler {
+            if (Hook.onMainScheduler != null) return Hook.onMainScheduler!!.call(mainThreadScheduler)
+
+            return mainThreadScheduler
+        }
+    }
+
+    class Hook {
+        companion object {
+            internal var onMainScheduler: Func1<Scheduler, Scheduler>? = null
+            fun reset() {
+                onMainScheduler = null
             }
-        }, ThreadPoolExecutor.DiscardPolicy())
 
-        executor.allowCoreThreadTimeOut(true)
-
-        return Schedulers.from(executor)
-    }
-
-
-    private val mainThreadScheduler by lazy { HandlerThreadScheduler(Handler(Looper.getMainLooper())) }
-    fun mainThread(): Scheduler {
-        if (Hook.onMainScheduler != null) return Hook.onMainScheduler!!.call(mainThreadScheduler)
-
-        return mainThreadScheduler
-    }
-
-    object Hook {
-        internal var onMainScheduler: Func1<Scheduler, Scheduler>? = null
-        fun reset() {
-            onMainScheduler = null
-        }
-
-        //Func1<Scheduler, Scheduler> onIOScheduler
-        fun setOnMainScheduler(scheduler: Func1<Scheduler, Scheduler>) {
-            onMainScheduler = scheduler
+            //Func1<Scheduler, Scheduler> onIOScheduler
+            fun setOnMainScheduler(scheduler: Func1<Scheduler, Scheduler>) {
+                onMainScheduler = scheduler
+            }
         }
     }
+
+
 }
