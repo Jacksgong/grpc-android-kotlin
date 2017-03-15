@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">gRPCClient</string>
+    <string name="app_name">GRPC</string>
 
     <!-- Strings related to login -->
     <string name="prompt_usermane">UserName</string>
