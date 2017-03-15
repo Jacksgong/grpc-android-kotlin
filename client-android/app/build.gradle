@@ -3,8 +3,17 @@ apply plugin: 'com.google.protobuf'
 apply plugin: 'kotlin-android'
 
 android {
+    signingConfigs {
+        release {
+            keyAlias 'GrpcAndroidClient'
+            keyPassword 'grpc-demo'
+            storeFile file('/Users/Jacksgong/code/github/grpc-android-kotlin/client-android/app/grpc-demo.jks')
+            storePassword 'grpc-demo'
+        }
+    }
+
     compileSdkVersion 25
-    buildToolsVersion "25.0.0"
+    buildToolsVersion "25.0.2"
     defaultConfig {
         applicationId "cn.dreamtobe.grpc.client"
         minSdkVersion 15
@@ -14,7 +23,9 @@ android {
     }
     buildTypes {
         release {
-            minifyEnabled false
+            minifyEnabled true
+            shrinkResources true
+            signingConfig signingConfigs.release
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
