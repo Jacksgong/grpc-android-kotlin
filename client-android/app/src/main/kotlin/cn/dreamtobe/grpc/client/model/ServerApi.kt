@@ -31,7 +31,6 @@ interface ServerApi {
     fun getHost(): String
     fun setHost(host: String)
 
-
     fun createRoom(): CreateRoomResponse
     fun register(username: String, password: String): Boolean
     fun loginOrRegister(username: String, password: String): LoginOrRegisterResponse
@@ -40,37 +39,65 @@ interface ServerApi {
 
     class TokenMissingException : Exception("Token is missing. Call login() first")
 
+    class Channel {
+        internal var port: Int = 5351
+        internal var host: String = "119.29.88.253"
+
+        private var connector: ChatGrpc.ChatBlockingStub? = null
+
+        fun setHost(host: String) {
+            if (host != this.host) {
+                this.host = host
+                reset()
+            }
+        }
+
+        fun setPort(port: Int) {
+            if (port != this.port) {
+                this.port = port
+                reset()
+            }
+        }
+
+        private fun reset() {
+            connector = null
+        }
+
+        internal fun stub(): ChatGrpc.ChatBlockingStub {
+            if (connector == null) {
+                val channel = ManagedChannelBuilder.forAddress(host, port)
+                        .usePlaintext(true)
+                        .build()
+                connector = ChatGrpc.newBlockingStub(channel)
+            }
+            return connector!!
+        }
+
+    }
+
     class Factory {
         companion object {
             fun create(): ServerApi {
                 return object : ServerApi {
 
-                    private var mPort: Int = 5001
-                    private var mHost: String = "10.15.128.171"
 
-                    private val mConnector: ChatGrpc.ChatBlockingStub
                     private var mToken: String? = null
                     private val mDateFormat: DateFormat
                     private var mLoggedInUser: String? = null
+                    private val mChannel: Channel = Channel()
 
                     init {
-                        val channel = ManagedChannelBuilder.forAddress(mHost, mPort)
-                                .usePlaintext(true)
-                                .build()
-                        mConnector = ChatGrpc.newBlockingStub(channel)
                         mDateFormat = SimpleDateFormat("MM-dd hh:mm:ss", Locale.CHINA)
                     }
 
-                    override fun getPort() = mPort
-
+                    override fun getPort() = mChannel.port
                     override fun setPort(port: Int) {
-                        mPort = port
+                        mChannel.setPort(port)
                     }
 
-                    override fun getHost() = mHost
-
+                    override fun getHost() = mChannel.host
                     override fun setHost(host: String) {
-                        mHost = host
+                        mChannel.setHost(host)
                     }
 
                     override fun createRoom(): CreateRoomResponse {
@@ -78,7 +105,7 @@ interface ServerApi {
 
                         val name = mDateFormat.format(Date())
                         val request = CreateRoomRequest.newBuilder().setToken(mToken).setName(name).setDesc("create by $mLoggedInUser").build()
-                        val response = mConnector.createRoom(request)
+                        val response = mChannel.stub().createRoom(request)
 
                         if (response.created) {
                             Logger.log(javaClass, "Room created: $name")
@@ -91,7 +118,7 @@ interface ServerApi {
 
                     override fun register(username: String, password: String): Boolean {
                         val request = RegisterRequest.newBuilder().setUsername(username).setPassword(password).build()
-                        val response = mConnector.register(request)
+                        val response = mChannel.stub().register(request)
 
                         if (response.registered) {
                             Logger.log(javaClass, "Register successful")
@@ -106,7 +133,7 @@ interface ServerApi {
 
                     override fun loginOrRegister(username: String, password: String): LoginOrRegisterResponse {
                         val request = LoginRequest.newBuilder().setUsername(username).setPassword(password).build()
-                        val response = mConnector.loginOrRegister(request)
+                        val response = mChannel.stub().loginOrRegister(request)
 
                         if (response.loggedIn) {
                             mToken = response.token
@@ -122,7 +149,7 @@ interface ServerApi {
 
                     override fun login(username: String, password: String): Boolean {
                         val request = LoginRequest.newBuilder().setUsername(username).setPassword(password).build()
-                        val response = mConnector.login(request)
+                        val response = mChannel.stub().login(request)
 
                         if (response.loggedIn) {
                             mToken = response.token
@@ -140,7 +167,7 @@ interface ServerApi {
                         if (mToken == null) throw TokenMissingException()
 
                         val request = ListRoomsRequest.newBuilder().setToken(mToken).build()
-                        val response = mConnector.listRooms(request)
+                        val response = mChannel.stub().listRooms(request)
 
                         if (response.error.code == Codes.SUCCESS) {
                             Logger.log(javaClass, "Rooms on server:")
