@@ -82,14 +82,6 @@ If your proto is changed or you android project has been cleaned don't forget re
 bash refresh-android-proto.sh
 ```
 
-If you want to run unit-test for Android project
-
-```bash
-# run unit-test on Android project
-cd client-android
-./gradlew test
-```
-
 ## III. LICENSE
 
 ```
