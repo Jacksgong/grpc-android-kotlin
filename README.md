@@ -4,9 +4,7 @@
 
 - [中文文档](https://github.com/Jacksgong/grpc-android-kotlin/blob/master/README-zh.md)
 
-## Kickoff
-
-> Because of I'm running the server-side code on my testing-vps, If you just want to testing the Android, you can download and install the [release-v1.apk](https://raw.githubusercontent.com/Jacksgong/grpc-android-kotlin/master/arts/release-v1.apk) or the Android-side project, then set the Ip to `119.29.88.253` and set port to `5351` on the application, so you can test through touching the server-side code on my testing-vps, Have Fun!
+## I. Kickoff
 
 #### Android
 
@@ -29,7 +27,29 @@
 > Building 93% > :server:run
 ```
 
-## Run
+## II. Run
+
+---
+
+Because of I'm running the server-side code on my testing-VPS.
+
+### If you just want to test the Android Project
+
+##### Step1. Install & Run Android project
+
+Alternative:
+
+- Download and install the [release-v1.apk](https://raw.githubusercontent.com/Jacksgong/grpc-android-kotlin/master/arts/release-v1.apk)
+- Running the Android-side project by yourself.
+
+##### Step2. Configure
+
+- Set Ip to `119.29.88.253` on the application
+- Set Port to `5351` on the application
+
+So you can test through touching the server-side code on my testing-VPS, Have Fun!
+
+---
 
 #### 1. Fetch the back-end codes([grpc-chat-kotlin](https://github.com/Jacksgong/grpc-chat-kotlin)):
 
@@ -70,7 +90,7 @@ cd client-android
 ./gradlew test
 ```
 
-## LICENSE
+## III. LICENSE
 
 ```
 Copyright (C) 2017 Jacksgong(blog.dreamtobe.cn)
