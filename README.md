@@ -6,6 +6,8 @@
 
 ## Kickoff
 
+> Because of I'm running the server-side code on my testing-vps, If you just want to testing the Android, you can download and install the [release-v1.apk](https://raw.githubusercontent.com/Jacksgong/grpc-android-kotlin/master/arts/release-v1.apk) or the Android-side project, then set the Ip to `119.29.88.253` and set port to `5351` on the application, so you can test through touching the server-side code on my testing-vps, Have Fun!
+
 #### Android
 
 ![](https://raw.githubusercontent.com/Jacksgong/grpc-android-kotlin/master/arts/demo.gif)
