@@ -39,7 +39,7 @@ Because of I'm running the server-side code on my testing-VPS.
 
 Alternative:
 
-- Download and install the [release-v1.apk](https://raw.githubusercontent.com/Jacksgong/grpc-android-kotlin/master/arts/release-v1.apk)
+- Download and install the [release-v1.1.apk](https://raw.githubusercontent.com/Jacksgong/grpc-android-kotlin/master/arts/release-v1.1.apk)
 - Running the Android-side project by yourself.
 
 ##### Step2. Configure

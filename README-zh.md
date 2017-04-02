@@ -6,7 +6,7 @@
 
 ## 快速预览
 
-> 由于我已经在我的一台测试VPS上部署了该项目的服务端的代码，如果你仅仅是想要测试Android，你可以通过下载[release-v1.apk](https://raw.githubusercontent.com/Jacksgong/grpc-android-kotlin/master/arts/release-v1.apk)或者是运行Android项目到你手机上，然后在应用中设置IP为`119.29.88.253`并且设置端口为`5351`, 这样你就可以连接到我的测试VPS，测试Android项目了。
+> 由于我已经在我的一台测试VPS上部署了该项目的服务端的代码，如果你仅仅是想要测试Android，你可以通过下载[release-v1.1.apk](https://raw.githubusercontent.com/Jacksgong/grpc-android-kotlin/master/arts/release-v1.1.apk)或者是运行Android项目到你手机上，然后在应用中设置IP为`119.29.88.253`并且设置端口为`5351`, 这样你就可以连接到我的测试VPS，测试Android项目了。
 
 #### Android
 
