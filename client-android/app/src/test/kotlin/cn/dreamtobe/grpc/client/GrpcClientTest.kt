@@ -30,7 +30,7 @@ import rx.schedulers.Schedulers
 /**
  * Created by Jacksgong on 09/03/2017.
  */
-abstract open class GrpcClientTest<V : MvpView, P : Presenter<V>> : AndroidTest() {
+abstract class GrpcClientTest<V : MvpView, P : Presenter<V>> : AndroidTest() {
 
     lateinit var presenter: P
     lateinit var mvpView: V

@@ -41,7 +41,7 @@ interface ServerApi {
 
     class Channel {
         internal var port: Int = 5351
-        internal var host: String = "119.29.88.253"
+        internal var host: String = "grpc.jacksgong.com"
 
         private var connector: ChatGrpc.ChatBlockingStub? = null
 
